@@ -71,7 +71,7 @@ CREATE TABLE tarif (
     station_depart_id  INTEGER NOT NULL REFERENCES station (id_station),
     station_arrivee_id INTEGER NOT NULL REFERENCES station (id_station),
     prix               NUMERIC(12,2) NOT NULL CHECK (prix >= 0),
-    devise             CHAR(3) NOT NULL DEFAULT 'USD',
+    devise             CHAR(3) NOT NULL DEFAULT 'BIF',
     CHECK (station_depart_id <> station_arrivee_id),
     UNIQUE (ligne_id, station_depart_id, station_arrivee_id)
 );
@@ -117,7 +117,7 @@ CREATE TABLE reservation (
     statut             statut_reservation NOT NULL DEFAULT 'confirmee',
     statut_paiement    statut_paiement NOT NULL DEFAULT 'en_attente',
     montant_total      NUMERIC(12,2) NOT NULL CHECK (montant_total >= 0),
-    devise             CHAR(3) NOT NULL DEFAULT 'USD',
+    devise             CHAR(3) NOT NULL DEFAULT 'BIF',
     cree_le            TIMESTAMPTZ NOT NULL DEFAULT now(),
     CHECK (station_depart_id <> station_arrivee_id)
 );

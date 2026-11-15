@@ -137,7 +137,7 @@ model Tarif {
   station_depart_id  Int
   station_arrivee_id Int
   prix               Decimal @db.Decimal(12, 2)
-  devise             String  @default("USD") @db.Char(3)
+  devise             String  @default("BIF") @db.Char(3)
   ligne              Ligne   @relation(fields: [ligne_id], references: [id_ligne], onDelete: Cascade)
   station_depart     Station @relation("TarifDepart", fields: [station_depart_id], references: [id_station])
   station_arrivee    Station @relation("TarifArrivee", fields: [station_arrivee_id], references: [id_station])
@@ -203,7 +203,7 @@ model Reservation {
   statut             StatutReservation @default(confirmee)
   statut_paiement    StatutPaiement    @default(en_attente)
   montant_total      Decimal           @db.Decimal(12, 2)
-  devise             String            @default("USD") @db.Char(3)
+  devise             String            @default("BIF") @db.Char(3)
   cree_le            DateTime          @default(now()) @db.Timestamptz(6)
   utilisateur        Utilisateur       @relation(fields: [utilisateur_id], references: [id_utilisateur])
   trajet             Trajet            @relation(fields: [trajet_id], references: [id_trajet])
