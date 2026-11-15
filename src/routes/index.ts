@@ -5,6 +5,7 @@ import { envoyerSucces } from '../lib/reponses.js';
 import { creerRoutesAuth } from '../modules/auth/auth.routes.js';
 import { creerRoutesLignes } from '../modules/lignes/lignes.routes.js';
 import { creerRoutesStations } from '../modules/stations/stations.routes.js';
+import { creerRoutesTrajets } from '../modules/trajets/trajets.routes.js';
 import { creerRoutesVehicules } from '../modules/vehicules/vehicules.routes.js';
 
 /** Toutes les routes de l'API (préfixe /api/v1). Les modules s'ajoutent ici. */
@@ -19,6 +20,7 @@ export function creerRoutes(deps: { config: Config; prisma: Prisma }): Router {
   routes.use('/stations', creerRoutesStations(deps));
   routes.use('/vehicules', creerRoutesVehicules(deps));
   routes.use('/lignes', creerRoutesLignes(deps));
+  routes.use('/trajets', creerRoutesTrajets(deps));
 
   return routes;
 }
