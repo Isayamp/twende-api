@@ -4,13 +4,14 @@ Ce guide permet à une autre personne de reprendre le projet sans rien demander.
 
 ## État actuel (2026-11-15)
 
-- **Phase** : semaine 1, conception terminée, **en attente de validation du groupe**.
-- **Code** : aucun. Dossier `docs/` complet, trois schémas, script SQL de conception.
+- **Phase** : conception terminée, socle du projet écrit (branche `feat/socle-projet`).
+- **Code** : configuration, application Express, erreurs, validation, schéma Prisma, migration, seeder. 16 tests verts.
+- **Pas encore fait** : exécuter la migration et le seeder (mot de passe PostgreSQL à saisir dans `.env`), authentification, CRUD, recherche.
 - **Dépôt GitHub** : https://github.com/Isayamp/twende-api (public). Branches : `main`, `develop` et les branches de travail (aucune n'est supprimée).
 
 ## Prochaines étapes
 
-1. Le groupe valide ou corrige la conception.
+1. Saisir le mot de passe PostgreSQL dans `.env`, créer la base `twende`, lancer `npx prisma migrate deploy` puis `npm run db:seed`.
 2. Ajout d'ASUKULU MUSATO Théophile et de l'enseignant comme collaborateurs (sur demande du groupe).
 3. Questions-réponses sur le design du front.
 4. Semaine 2 : initialisation du projet (voir `04-plan-4-semaines.md`).
@@ -28,13 +29,14 @@ Voir `01-analyse-besoins.md` section 2 et `02-conception-bd.md` section 7.
 
 ## Comptes de test (prévus pour le seeder)
 
-Les mots de passe de test seront définis au moment du seeder et notés ici et dans le README. Rôles prévus :
+Le seeder crée ces comptes. Mot de passe de test (valeur de démonstration, modifiable avec `SEED_MOT_DE_PASSE`) : `Twende#2026`. Rôles :
 
 | Rôle | E-mail prévu |
 |---|---|
 | Administrateur | `admin@twende.test` |
 | Agent de guichet | `agent@twende.test` |
 | Passager | `passager@twende.test` |
+| Passager (second) | `passager2@twende.test` |
 
 ## Idées futures
 
