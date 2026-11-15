@@ -78,7 +78,7 @@ Le diagramme est dans `conception/cas-utilisation.png`.
 ## 6. Ce qui est ambigu ou choisi par nous
 
 - **Une place est bloquée pour tout le trajet.** Dans la vraie vie, une place peut être revendue après la descente d'un passager. On ne le gère pas (idée future).
-- **Devise** : une devise par tarif (USD par défaut). Pas de conversion.
+- **Devise** : une devise par tarif (franc burundais BIF par défaut). Pas de conversion.
 - **Pas de paiement en ligne** : l'agent marque « payé ».
 - **Pas d'expiration automatique** d'une réservation non payée (idée future).
 

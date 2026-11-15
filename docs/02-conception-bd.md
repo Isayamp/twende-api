@@ -53,7 +53,7 @@ Règles appliquées :
 | `utilisateur` | Compte de connexion (admin, agent, passager) | - |
 | `jeton_rafraichissement` | Jetons de renouvellement (empreinte, expiration, révocation) | utilisateur |
 | `station` | Lieu d'arrêt (gare routière) | - |
-| `ligne` | Route commerciale (ex. Goma - Kigali) | - |
+| `ligne` | Route commerciale (ex. Bujumbura - Gitega) | - |
 | `ligne_station` | Arrêts d'une ligne, dans l'ordre | ligne, station |
 | `tarif` | Prix par tronçon d'une ligne | ligne, station x2 |
 | `vehicule` | Bus avec son nombre de places | - |
