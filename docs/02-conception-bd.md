@@ -17,6 +17,8 @@ Images prêtes pour le rapport (PNG pour Word, SVG pour la qualité maximale) :
 
 ![MLD](conception/mld.png)
 
+Les mêmes schémas existent en texte Mermaid dans [`conception/diagrammes.md`](conception/diagrammes.md) (avec en plus la séquence de réservation et les états).
+
 ## 2. Lecture du MCD
 
 Les cardinalités se lisent « (min,max) côté entité ».

@@ -1,4 +1,4 @@
-# Twende
+# Twende API
 
 API de gestion des transports et réservations pour une compagnie de bus interurbains.
 « Twende » veut dire « allons-y » en swahili.
@@ -16,7 +16,7 @@ ISAYA M'LELA Pombo et ASUKULU MUSATO Théophile.
 
 ## État du projet
 
-Phase de **conception** (semaine 1). Le code arrive à la semaine 2.
+Conception terminée. Le socle (base, authentification) est la prochaine étape.
 Voir le dossier [`docs/`](docs/README.md) : analyse, MCD, MLD, cas d'utilisation, routes, plan.
 
 ## Stack prévue
