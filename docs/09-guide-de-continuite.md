@@ -6,12 +6,12 @@ Ce guide permet à une autre personne de reprendre le projet sans rien demander.
 
 - **Phase** : conception terminée, socle du projet écrit (branche `feat/socle-projet`).
 - **Code** : configuration, application Express, erreurs, validation, schéma Prisma, migration, seeder. 16 tests verts.
-- **Pas encore fait** : exécuter la migration et le seeder (mot de passe PostgreSQL à saisir dans `.env`), authentification, CRUD, recherche.
+- **Base** : `twende_api_db`, migration et seeder exécutés (15/11). **Pas encore fait** : authentification, CRUD, recherche.
 - **Dépôt GitHub** : https://github.com/Isayamp/twende-api (public). Branches : `main`, `develop` et les branches de travail (aucune n'est supprimée).
 
 ## Prochaines étapes
 
-1. Saisir le mot de passe PostgreSQL dans `.env`, créer la base `twende`, lancer `npx prisma migrate deploy` puis `npm run db:seed`.
+1. (Fait le 15/11 sur la machine d'Isaya) Mot de passe dans `.env`, base `twende_api_db`, lancer `npx prisma migrate deploy` puis `npm run db:seed`.
 2. Ajout d'ASUKULU MUSATO Théophile et de l'enseignant comme collaborateurs (sur demande du groupe).
 3. Questions-réponses sur le design du front.
 4. Semaine 2 : initialisation du projet (voir `04-plan-4-semaines.md`).

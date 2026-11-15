@@ -11,7 +11,7 @@
 1. Cloner le dépôt : `git clone https://github.com/Isayamp/twende-api.git` puis `cd twende-api`.
 2. `npm install`
 3. Copier `.env.example` en `.env`, puis remplir `JWT_SECRET` et le mot de passe dans `DATABASE_URL` (voir le tableau plus bas).
-4. Créer la base : `psql -U postgres -c "CREATE DATABASE twende;"` (le mot de passe PostgreSQL vous est demandé, saisissez-le vous-même).
+4. Créer la base : `psql -U postgres -c "CREATE DATABASE twende_api_db;"` (le mot de passe PostgreSQL vous est demandé, saisissez-le vous-même).
 5. Créer les tables : `npx prisma migrate deploy`
 6. Remplir les données de test : `npm run db:seed`
 7. Lancer l'API : `npm run dev` (http://localhost:3000/api/v1/health).
