@@ -1,10 +1,14 @@
 # 07 - Git et conventions
 
-## Branches
+## Branches (inspirées de Git Flow)
 
-- `main` : version stable.
-- `feat/<sujet>` : une branche par fonctionnalité, fusionnée dans `main` quand elle est prête et testée.
-- Autres préfixes possibles : `fix/`, `docs/`, `chore/`.
+- `main` : versions stables, prêtes à présenter.
+- `develop` : branche d'intégration. Tout le travail s'y rassemble avant de passer dans `main`.
+- `feat/<sujet>` : une branche par fonctionnalité, créée depuis `develop`, fusionnée dans `develop` avec `--no-ff`.
+- `fix/`, `docs/`, `chore/` : même principe que `feat/`.
+- Quand `develop` est stable, on la fusionne dans `main` (`--no-ff`).
+
+**Aucune branche n'est jamais supprimée**, même après fusion. Elles servent de trace du travail.
 
 ## Commits
 

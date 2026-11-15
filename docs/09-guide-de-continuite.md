@@ -6,12 +6,12 @@ Ce guide permet à une autre personne de reprendre le projet sans rien demander.
 
 - **Phase** : semaine 1, conception terminée, **en attente de validation du groupe**.
 - **Code** : aucun. Dossier `docs/` complet, trois schémas, script SQL de conception.
-- **Dépôt GitHub** : pas encore créé (nom à choisir par le groupe, dépôt privé).
+- **Dépôt GitHub** : https://github.com/Isayamp/twende-api (public). Branches : `main`, `develop` et les branches de travail (aucune n'est supprimée).
 
 ## Prochaines étapes
 
 1. Le groupe valide ou corrige la conception.
-2. Création du dépôt GitHub, puis ajout d'ASUKULU MUSATO Théophile et de l'enseignant comme collaborateurs (sur demande du groupe).
+2. Ajout d'ASUKULU MUSATO Théophile et de l'enseignant comme collaborateurs (sur demande du groupe).
 3. Questions-réponses sur le design du front.
 4. Semaine 2 : initialisation du projet (voir `04-plan-4-semaines.md`).
 

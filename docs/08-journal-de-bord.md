@@ -21,6 +21,9 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Plan resserré et réordonné : la recherche de trajets passe en premier objectif de démonstration.
 - Les commits gardent leurs dates réelles (l'historique Git est noté).
 
+**Dépôt**
+- Dépôt public créé : https://github.com/Isayamp/twende-api. Branches `main` et `develop` (Git Flow simplifié), aucune branche supprimée.
+
 **À faire ensuite**
 - Validation de la conception par le groupe.
 - Création du dépôt GitHub privé (nom à choisir).
