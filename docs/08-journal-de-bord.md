@@ -53,3 +53,17 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Connexion : même réponse 401 pour un mauvais mot de passe et un e-mail inconnu, avec un temps de calcul comparable. Compte désactivé : 403.
 - Limite stricte sur `/auth` : 20 essais par 15 minutes (429).
 - Tests : base séparée `twende_api_db_test`, créée par le test lui-même. 47 tests verts.
+
+## Référentiels, trajets et recherche (2026-11-15)
+
+- Branche `feat/referentiels-trajets`. Tests écrits avant le code (110 tests verts, couverture environ 96 %).
+- **Stations, véhicules, lignes** : CRUD complet. Lecture publique pour stations et lignes, réservée au personnel pour les véhicules. Écriture réservée à l'administrateur. Suppression d'un élément encore utilisé : 409 (`STATION_UTILISEE`, `LIGNE_UTILISEE`, `VEHICULE_UTILISE`).
+- **Arrêts et tarifs** d'une ligne : `PUT` qui remplace toute la liste dans une transaction. Un tarif doit aller vers l'avant sur la ligne.
+- **Trajets** : l'arrivée est calculée avec la durée du dernier arrêt. Un véhicule ne peut pas avoir deux trajets qui se chevauchent (409 `VEHICULE_OCCUPE`) ; partir à l'heure exacte d'arrivée de l'autre est permis ; un trajet annulé ne bloque plus.
+- **Recherche** `GET /trajets/recherche` : départ et arrivée obligatoires, filtres `date`, `heure_min`, `heure_max`, `prix_max`, `places_min`, tri par heure ou par prix, pagination. Seuls les trajets à venir, planifiés, qui passent par le départ puis par l'arrivée (dans cet ordre) et qui ont un tarif sont renvoyés. Les heures sont calculées à chaque arrêt. Dates et heures comprises à l'heure du Burundi.
+- SQL brut seulement pour la recherche, avec des paramètres (`Prisma.sql`) : un test vérifie qu'une tentative d'injection est refusée.
+- Piège : PostgreSQL renvoie une erreur « RESTRICT » que Prisma ne code pas (erreur inconnue). `traduireErreurPrisma` la reconnaît et renvoie un 409.
+- Piège : après un changement de valeur par défaut dans le schéma, relancer `npx prisma generate` (arrêter le serveur avant, sous Windows).
+- **Revue de sécurité** : aucun problème critique. Point grave corrigé : deux créations simultanées pouvaient double-réserver un véhicule. Une contrainte d'exclusion PostgreSQL (migration `20261115080000`, extension `btree_gist`) l'interdit maintenant dans la base ; l'erreur devient un 409. Un test lance 4 créations en parallèle : 1 succès, 3 refus.
+- Aussi corrigés : page limitée à 10 000, durée d'un trajet limitée à 7 jours, `heure_min` avant `heure_max`, prix à 2 décimales, identifiants bornés.
+- Reste à faire plus tard (non bloquant) : limiteur dédié sur la recherche publique, masquer les lignes inactives et trajets annulés côté public, table des transitions de statut, refus de modifier un trajet qui a déjà des billets.

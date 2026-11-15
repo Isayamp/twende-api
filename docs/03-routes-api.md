@@ -46,26 +46,24 @@ Erreur : `{ "succes": false, "erreur": { "code": "PLACE_DEJA_PRISE", "message": 
 
 | Méthode | Route | Rôle | Remarque |
 |---|---|---|---|
-| GET | `/stations` | - | Filtres : `q`, `ville`, `pays`, pagination |
+| GET | `/stations` | - | Filtres : `q` (nom ou ville), `ville`, `page`, `limite` |
 | POST, PATCH, DELETE | `/stations`, `/stations/:id` | AD | |
-| GET | `/lignes`, `/lignes/:id` | - | Filtre `actif`, `q` |
+| GET | `/lignes`, `/lignes/:id` | - | Filtres `active`, `q`. Le détail contient arrêts et tarifs |
 | POST, PATCH, DELETE | `/lignes`, `/lignes/:id` | AD | |
-| GET | `/lignes/:id/arrets` | - | Arrêts dans l'ordre |
-| PUT | `/lignes/:id/arrets` | AD | Remplace la liste des arrêts |
-| GET | `/lignes/:id/tarifs` | - | |
-| POST | `/lignes/:id/tarifs` | AD | |
-| PATCH, DELETE | `/tarifs/:id` | AD | |
-| GET | `/vehicules`, `/vehicules/:id` | A, AD | Filtres : `q`, `actif`, pagination |
+| PUT | `/lignes/:id/arrets` | AD | Remplace tous les arrêts (l'ordre du tableau = l'ordre sur la ligne). 422 si station inconnue ou en double |
+| PUT | `/lignes/:id/tarifs` | AD | Remplace tous les tarifs. Chaque tronçon doit aller vers l'avant sur la ligne (422 sinon) |
+| GET | `/vehicules`, `/vehicules/:id` | A, AD | Filtres : `q`, `active`, `page`, `limite` |
 | POST, PATCH, DELETE | `/vehicules`, `/vehicules/:id` | AD | |
 
 ## Trajets et recherche
 
 | Méthode | Route | Rôle | Remarque |
 |---|---|---|---|
-| GET | `/trajets` | - | **Recherche** : `depart` (id station), `arrivee`, `date` (AAAA-MM-JJ), `places_min`, `page`, `limite`. Renvoie prix, places libres, horaires aux stations choisies. |
+| GET | `/trajets/recherche` | - | **Recherche publique** : `depart` et `arrivee` (id de station, obligatoires), `date` (AAAA-MM-JJ), `heure_min`, `heure_max` (HH:MM), `prix_max`, `places_min`, `tri` (`heure` ou `prix`), `page`, `limite`. Dates et heures à l'heure du Burundi (UTC+2). Renvoie prix, places libres et horaires aux stations choisies. |
+| GET | `/trajets` | A, AD | Liste du personnel : `ligne_id`, `vehicule_id`, `statut`, `du`, `au`, `page`, `limite` |
 | GET | `/trajets/:id` | - | Détail |
 | GET | `/trajets/:id/places` | - | Plan des places : libre ou occupée |
-| POST | `/trajets` | AD | Planifie. Refuse le chevauchement du véhicule (422) |
+| POST | `/trajets` | AD | Planifie. Arrivée calculée si absente. Refuse le chevauchement du véhicule (409 `VEHICULE_OCCUPE`) |
 | PATCH | `/trajets/:id` | AD | Changement d'horaire ou de véhicule |
 | DELETE | `/trajets/:id` | AD | Annule le trajet et ses réservations (RG11) |
 | GET | `/statistiques/remplissage` | A, AD | Filtres : `ligne_id`, `date_debut`, `date_fin`. Taux par trajet |

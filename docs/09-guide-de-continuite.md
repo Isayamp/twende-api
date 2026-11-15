@@ -7,7 +7,8 @@ Ce guide permet à une autre personne de reprendre le projet sans rien demander.
 - **Phase** : conception terminée, socle du projet écrit (branche `feat/socle-projet`).
 - **Code** : configuration, application Express, erreurs, validation, schéma Prisma, migration, seeder. 16 tests verts.
 - **Authentification** (branche `feat/authentification`) : inscription, connexion, rafraîchissement avec rotation, déconnexion, profil, middleware de rôles. 47 tests verts.
-- **Base** : `twende_api_db` (et `twende_api_db_test`, créée automatiquement par les tests), migration et seeder exécutés (15/11). **Pas encore fait** : CRUD, recherche.
+- **Base** : `twende_api_db` (et `twende_api_db_test`, créée automatiquement par les tests), migration et seeder exécutés (15/11). Seeder du Burundi : 8 stations, 4 lignes, 56 trajets.
+- **Référentiels et trajets** (branche `feat/referentiels-trajets`) : CRUD stations, véhicules, lignes (arrêts et tarifs par `PUT`), trajets (règle de chevauchement de véhicule) et **recherche de trajets** `GET /api/v1/trajets/recherche`. 110 tests verts. **Pas encore fait** : plan des places, réservation, test de concurrence.
 - **Dépôt GitHub** : https://github.com/Isayamp/twende-api (public). Branches : `main`, `develop` et les branches de travail (aucune n'est supprimée).
 
 ## Prochaines étapes
