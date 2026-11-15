@@ -22,7 +22,7 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - 16 tests (Vitest + Supertest), tous verts, tests écrits avant le code. Couverture actuelle : environ 88 %.
 - Schéma Prisma identique au MLD. Migration initiale avec les contraintes à la main (CHECK, index unique des places, e-mail unique sans casse).
 - Seeder : 4 comptes de test, 7 stations, 3 lignes, tarifs par tronçon, 6 véhicules, trajets des 7 prochains jours.
-- **Pas encore exécuté** : la migration et le seeder (le mot de passe PostgreSQL manque dans `.env`).
+- Migration et seeder exécutés ensuite sur la base `twende_api_db` (nom choisi pour contenir « api » et « db »). Le test SQL confirme que l'index refuse deux billets sur la même place d'un trajet.
 - Bibliothèques : `bcryptjs` choisi plutôt que `bcrypt` (pur JavaScript, pas de compilation native, donc plus fiable sous Windows avec l'antivirus). Prisma 6 gardé pour sa stabilité.
 
 **Ensuite (même jour)**

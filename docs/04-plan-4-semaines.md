@@ -15,12 +15,11 @@
 
 ## Phase 2 : socle, base, authentification, rôles (prochaine)
 
-Bloquant : le mot de passe PostgreSQL à saisir dans `.env`.
 
 - [x] Initialisation Node + TypeScript + Express, structure des dossiers, Prettier
 - [x] Configuration `.env` validée par Zod, journalisation Pino, Helmet, CORS, limitation de débit
 - [x] Prisma : schéma, migration initiale et seeder écrits
-- [ ] Migration et seeder **exécutés** sur PostgreSQL (attend le mot de passe dans `.env`)
+- [x] Migration et seeder exécutés sur PostgreSQL (base `twende_api_db`)
 - [x] Gestionnaire d'erreurs central et format de réponse
 - [ ] Inscription, connexion, rafraîchissement, déconnexion (bcrypt, JWT)
 - [ ] Middleware de rôles (admin, agent, passager)
