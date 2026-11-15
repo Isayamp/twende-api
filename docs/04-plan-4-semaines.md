@@ -1,49 +1,51 @@
-# 04 - Plan sur 4 semaines
+# 04 - Plan (version resserrée)
 
-Basé sur le planning indicatif de l'énoncé. Chaque tâche de règle métier commence par un test (TDD).
-Les dates réelles sont dans le journal de bord (`08-journal-de-bord.md`).
+> Le plan indicatif de l'énoncé (4 semaines) ne correspond pas à notre calendrier réel : le projet a démarré avec la conception, et une présentation est attendue très tôt. Ce plan est donc **réordonné par priorité**, en gardant les 4 phases de l'énoncé.
+> Les cases cochées reflètent l'état réel. Les dates réelles sont dans `08-journal-de-bord.md`.
 
-## Semaine 1 : choix et conception (en cours)
+## Phase 1 : choix et conception (faite)
 
 - [x] Lecture de l'énoncé, questions-réponses, décisions de périmètre
-- [x] Choix du nom : Twende
+- [x] Nom : Twende API
 - [x] Analyse des besoins et règles métier
-- [x] MCD, MLD, cas d'utilisation (images), script SQL
+- [x] MCD, MLD, cas d'utilisation (PNG, SVG et Markdown Mermaid), script SQL
 - [x] Routes proposées
-- [ ] Validation de la conception par le groupe
-- [ ] Création du dépôt GitHub privé, ajout des collaborateurs
-- [ ] Palette et maquettes du petit front (questions-réponses)
+- [ ] Création du dépôt GitHub privé, ajout des collaborateurs (nom du dépôt à choisir)
 
-## Semaine 2 : projet, base, authentification, rôles
+## Phase 2 : socle, base, authentification, rôles (prochaine)
+
+Bloquant : le mot de passe PostgreSQL à saisir dans `.env`.
 
 - [ ] Initialisation Node + TypeScript + Express, structure des dossiers, ESLint et Prettier
-- [ ] Configuration `.env` (validée par Zod), journalisation Pino, Helmet, CORS, limitation de débit
+- [ ] Configuration `.env` validée par Zod, journalisation Pino, Helmet, CORS, limitation de débit
 - [ ] Prisma : schéma, première migration, seeders (stations, lignes, tarifs, véhicules, trajets, comptes de test)
 - [ ] Gestionnaire d'erreurs central et format de réponse
 - [ ] Inscription, connexion, rafraîchissement, déconnexion (bcrypt, JWT)
 - [ ] Middleware de rôles (admin, agent, passager)
 - [ ] Tests : auth et droits d'accès
 
-## Semaine 3 : fonctionnalités principales
+## Phase 3 : fonctionnalités principales
 
-- [ ] CRUD stations, lignes et arrêts, tarifs, véhicules
-- [ ] CRUD trajets, règle de chevauchement de véhicule
-- [ ] Recherche de trajets avec filtres et pagination
-- [ ] Plan des places
-- [ ] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
-- [ ] **Test de concurrence** (20 réservations en parallèle pour la même place)
-- [ ] Annulation et règles de délai
-- [ ] Passagers et paiement simple
-- [ ] Revue de sécurité avant fusion
+Ordre voulu, pour pouvoir montrer la recherche le plus tôt possible :
 
-## Semaine 4 : tests, sécurité, documentation, rapport, soutenance
+1. [ ] CRUD stations, lignes et arrêts, tarifs, véhicules
+2. [ ] CRUD trajets, règle de chevauchement de véhicule
+3. [ ] **Recherche de trajets avec filtres et pagination** (premier objectif de démonstration)
+4. [ ] Plan des places
+5. [ ] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
+6. [ ] **Test de concurrence** (20 réservations en parallèle pour la même place)
+7. [ ] Annulation et règles de délai
+8. [ ] Passagers et paiement simple
+9. [ ] Revue de sécurité avant fusion
+
+## Phase 4 : finition
 
 - [ ] Statistiques de remplissage
 - [ ] Bonus : QR code du billet
-- [ ] Bonus : distance dans les statistiques ou tarif calculé (si le temps le permet)
+- [ ] Bonus : tarif calculé selon la distance (si le temps le permet)
 - [ ] Couverture d'au moins 80 % sur la logique métier
 - [ ] Swagger généré depuis les schémas, collection Postman
-- [ ] Petit front de démonstration (recherche, plan des places, billet)
+- [ ] Petit front de démonstration (recherche, plan des places, billet), design validé par questions-réponses
 - [ ] Revue de code et audit de sécurité finaux
 - [ ] README complet, guide de continuité à jour
 - [ ] Rapport de 8 à 12 pages avec captures

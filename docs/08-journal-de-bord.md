@@ -15,6 +15,12 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Concurrence : verrou `FOR UPDATE` sur le trajet + index unique partiel sur `billet (trajet_id, numero_place)`.
 - Les dates de commits restent réelles.
 
+**Ensuite (même jour)**
+- Projet renommé `twende-api` pour que le but soit clair dès le premier regard.
+- Diagrammes ajoutés en Markdown Mermaid (`docs/conception/diagrammes.md`).
+- Plan resserré et réordonné : la recherche de trajets passe en premier objectif de démonstration.
+- Les commits gardent leurs dates réelles (l'historique Git est noté).
+
 **À faire ensuite**
 - Validation de la conception par le groupe.
 - Création du dépôt GitHub privé (nom à choisir).
