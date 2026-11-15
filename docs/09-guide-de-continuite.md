@@ -6,7 +6,8 @@ Ce guide permet à une autre personne de reprendre le projet sans rien demander.
 
 - **Phase** : conception terminée, socle du projet écrit (branche `feat/socle-projet`).
 - **Code** : configuration, application Express, erreurs, validation, schéma Prisma, migration, seeder. 16 tests verts.
-- **Base** : `twende_api_db`, migration et seeder exécutés (15/11). **Pas encore fait** : authentification, CRUD, recherche.
+- **Authentification** (branche `feat/authentification`) : inscription, connexion, rafraîchissement avec rotation, déconnexion, profil, middleware de rôles. 47 tests verts.
+- **Base** : `twende_api_db` (et `twende_api_db_test`, créée automatiquement par les tests), migration et seeder exécutés (15/11). **Pas encore fait** : CRUD, recherche.
 - **Dépôt GitHub** : https://github.com/Isayamp/twende-api (public). Branches : `main`, `develop` et les branches de travail (aucune n'est supprimée).
 
 ## Prochaines étapes

@@ -21,9 +21,9 @@
 - [x] Prisma : schéma, migration initiale et seeder écrits
 - [x] Migration et seeder exécutés sur PostgreSQL (base `twende_api_db`)
 - [x] Gestionnaire d'erreurs central et format de réponse
-- [ ] Inscription, connexion, rafraîchissement, déconnexion (bcrypt, JWT)
-- [ ] Middleware de rôles (admin, agent, passager)
-- [ ] Tests : auth et droits d'accès
+- [x] Inscription, connexion, rafraîchissement, déconnexion (bcrypt, JWT)
+- [x] Middleware de rôles (admin, agent, passager)
+- [x] Tests : auth et droits d'accès
 
 ## Phase 3 : fonctionnalités principales
 

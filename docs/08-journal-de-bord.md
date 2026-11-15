@@ -46,3 +46,10 @@ Une entrée par séance de travail. Les plus récentes en bas.
 
 **Limite connue**
 - Le script `schema.sql` n'a pas encore été exécuté : le mot de passe PostgreSQL doit être saisi par le groupe. On le testera à la semaine 2 avec Prisma.
+
+**Authentification (15/11)**
+- Routes `/auth/register`, `/login`, `/refresh`, `/logout`, `/me`. Le rôle est toujours `passager` à l'inscription (un rôle envoyé par le client est ignoré).
+- Jeton d'accès JWT court (HS256 seulement). Jeton de rafraîchissement aléatoire, stocké haché (SHA-256), changé à chaque usage. Si un ancien jeton revient, toute la session est révoquée.
+- Connexion : même réponse 401 pour un mauvais mot de passe et un e-mail inconnu, avec un temps de calcul comparable. Compte désactivé : 403.
+- Limite stricte sur `/auth` : 20 essais par 15 minutes (429).
+- Tests : base séparée `twende_api_db_test`, créée par le test lui-même. 47 tests verts.

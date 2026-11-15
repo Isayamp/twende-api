@@ -7,7 +7,10 @@ const schemaEnv = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL est obligatoire'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET doit avoir 32 caractères au minimum'),
-  JWT_ACCES_DUREE: z.string().default('15m'),
+  JWT_ACCES_DUREE: z
+    .string()
+    .regex(/^\d+[smh]$/, 'Durée invalide (exemple : 15m).')
+    .default('15m'),
   JWT_RAFRAICHISSEMENT_JOURS: z.coerce.number().int().min(1).default(7),
   CORS_ORIGINES: z.string().default('http://localhost:5173'),
   EMAIL_MODE: z.enum(['log', 'smtp']).default('log'),
@@ -22,6 +25,8 @@ export interface Config {
   jwtRafraichissementJours: number;
   corsOrigines: string[];
   emailMode: 'log' | 'smtp';
+  /** Coût de bcrypt : plus il est haut, plus le hachage est lent et sûr. */
+  bcryptCout: number;
 }
 
 /**
@@ -48,6 +53,8 @@ export function chargerConfig(source: Record<string, string | undefined>): Confi
       .map((o) => o.trim())
       .filter(Boolean),
     emailMode: env.EMAIL_MODE,
+    // Coût réduit pendant les tests pour qu'ils restent rapides.
+    bcryptCout: env.NODE_ENV === 'test' ? 4 : 12,
   };
 }
 

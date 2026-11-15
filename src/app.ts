@@ -5,11 +5,12 @@ import rateLimit from 'express-rate-limit';
 import { pinoHttp } from 'pino-http';
 import type { Config } from './config/env.js';
 import { creerLogger } from './lib/logger.js';
+import { prisma as prismaParDefaut, type Prisma } from './lib/prisma.js';
 import { gestionnaireErreurs, routeInconnue } from './middleware/gestionnaireErreurs.js';
 import { creerRoutes } from './routes/index.js';
 
 /** Assemble l'application Express. Séparée de server.ts pour pouvoir la tester. */
-export function creerApp(config: Config) {
+export function creerApp(config: Config, prisma: Prisma = prismaParDefaut) {
   const logger = creerLogger(config);
   const app = express();
 
@@ -29,7 +30,7 @@ export function creerApp(config: Config) {
     }),
   );
 
-  app.use('/api/v1', creerRoutes());
+  app.use('/api/v1', creerRoutes({ config, prisma }));
   app.use(routeInconnue);
   app.use(gestionnaireErreurs((erreur) => logger.error({ err: erreur }, 'Erreur inattendue')));
 
