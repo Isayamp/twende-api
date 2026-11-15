@@ -21,7 +21,7 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Middleware `valider` (Zod) pour le corps, les paramètres et la requête.
 - 16 tests (Vitest + Supertest), tous verts, tests écrits avant le code. Couverture actuelle : environ 88 %.
 - Schéma Prisma identique au MLD. Migration initiale avec les contraintes à la main (CHECK, index unique des places, e-mail unique sans casse).
-- Seeder : 4 comptes de test, 7 stations, 3 lignes, tarifs par tronçon, 6 véhicules, trajets des 7 prochains jours.
+- Seeder : 4 comptes de test, 8 stations (Burundi), 4 lignes, tarifs par tronçon en BIF, 8 véhicules, trajets des 7 prochains jours.
 - Migration et seeder exécutés ensuite sur la base `twende_api_db` (nom choisi pour contenir « api » et « db »). Le test SQL confirme que l'index refuse deux billets sur la même place d'un trajet.
 - Bibliothèques : `bcryptjs` choisi plutôt que `bcrypt` (pur JavaScript, pas de compilation native, donc plus fiable sous Windows avec l'antivirus). Prisma 6 gardé pour sa stabilité.
 
@@ -30,6 +30,11 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Diagrammes ajoutés en Markdown Mermaid (`docs/conception/diagrammes.md`).
 - Plan resserré et réordonné : la recherche de trajets passe en premier objectif de démonstration.
 - Les commits gardent leurs dates réelles (l'historique Git est noté).
+
+**Données de simulation : Burundi**
+- Le seeder simule un réseau de bus au départ de Bujumbura : 8 stations (Bujumbura, Muramvya, Gitega, Kayanza, Ngozi, Rumonge, Makamba, Cibitoke), 4 lignes, 8 véhicules, 56 trajets sur 7 jours, départs à 07h00 et 14h00 heure du Burundi.
+- Prix en francs burundais (BIF), environ 90 BIF par km, arrondis à 500 BIF. Calcul en entiers, sans flottant. Distances et prix fictifs.
+- La devise par défaut de la base devient BIF (migration `20261115070000_devise_bif_par_defaut`).
 
 **Dépôt**
 - Dépôt public créé : https://github.com/Isayamp/twende-api. Branches `main` et `develop` (Git Flow simplifié), aucune branche supprimée.
