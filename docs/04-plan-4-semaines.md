@@ -29,9 +29,9 @@
 
 Ordre voulu, pour pouvoir montrer la recherche le plus tôt possible :
 
-1. [ ] CRUD stations, lignes et arrêts, tarifs, véhicules
-2. [ ] CRUD trajets, règle de chevauchement de véhicule
-3. [ ] **Recherche de trajets avec filtres et pagination** (premier objectif de démonstration)
+1. [x] CRUD stations, lignes et arrêts, tarifs, véhicules
+2. [x] CRUD trajets, règle de chevauchement de véhicule
+3. [x] **Recherche de trajets avec filtres et pagination** (premier objectif de démonstration)
 4. [ ] Plan des places
 5. [ ] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
 6. [ ] **Test de concurrence** (20 réservations en parallèle pour la même place)
