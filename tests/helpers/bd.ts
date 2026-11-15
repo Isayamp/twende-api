@@ -45,3 +45,17 @@ export async function creerUtilisateur(options: OptionsUtilisateur = {}) {
     },
   });
 }
+
+/** Crée un utilisateur du rôle donné, le connecte par l'API et renvoie son jeton d'accès. */
+export async function jetonPour(
+  app: ReturnType<typeof creerAppTest>,
+  role: RoleUtilisateur,
+): Promise<string> {
+  const { default: request } = await import('supertest');
+  const email = `${role}@twende.test`;
+  await creerUtilisateur({ email, role });
+  const reponse = await request(app)
+    .post('/api/v1/auth/login')
+    .send({ email, mot_de_passe: MOT_DE_PASSE_TEST });
+  return reponse.body.donnees.jeton_acces as string;
+}
