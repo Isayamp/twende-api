@@ -10,7 +10,8 @@
 - [x] Analyse des besoins et règles métier
 - [x] MCD, MLD, cas d'utilisation (PNG, SVG et Markdown Mermaid), script SQL
 - [x] Routes proposées
-- [ ] Création du dépôt GitHub privé, ajout des collaborateurs (nom du dépôt à choisir)
+- [x] Dépôt GitHub créé (public) : `Isayamp/twende-api`
+- [ ] Ajout des collaborateurs (sur demande du groupe)
 
 ## Phase 2 : socle, base, authentification, rôles (prochaine)
 
