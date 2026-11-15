@@ -116,6 +116,27 @@ describe('POST /trajets', () => {
     expect(colle.status).toBe(201);
   });
 
+  it('deux créations simultanées pour le même véhicule : une seule réussit (409 pour l’autre)', async () => {
+    const envoyer = () => request(app).post(URL).set(avec(jetonAdmin)).send(corps());
+
+    const reponses = await Promise.all([envoyer(), envoyer(), envoyer(), envoyer()]);
+    const statuts = reponses.map((x) => x.status).sort();
+
+    expect(statuts).toEqual([201, 409, 409, 409]);
+    expect(await prisma.trajet.count()).toBe(1);
+  });
+
+  it('refuse un trajet de plus de 7 jours (422) et une page absurde (422)', async () => {
+    const long = await request(app)
+      .post(URL)
+      .set(avec(jetonAdmin))
+      .send(corps({ arrivee_prevue: '2030-06-20T05:00:00Z' }));
+    const page = await request(app).get(`${URL}?page=9000000000000000`).set(avec(jetonAdmin));
+
+    expect(long.status).toBe(422);
+    expect(page.status).toBe(422);
+  });
+
   it('un trajet annulé ne bloque pas le véhicule', async () => {
     await creerTrajet(r.ligne.id_ligne, r.bus.id_vehicule, '2030-06-10T05:00:00Z', 'annule');
 

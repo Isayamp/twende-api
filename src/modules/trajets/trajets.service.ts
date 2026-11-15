@@ -19,6 +19,16 @@ const MESSAGES = {
   absent: 'Trajet introuvable.',
 };
 
+// Erreurs possibles à l'écriture : la base refuse un chevauchement (même si deux demandes
+// arrivent en même temps) ou une ligne/un véhicule supprimé entre-temps.
+const MESSAGES_ECRITURE = {
+  chevauche: { code: 'VEHICULE_OCCUPE', message: 'Ce véhicule a déjà un trajet à ce moment.' },
+  utilise: { code: 'REFERENCE_INVALIDE', message: 'La ligne ou le véhicule n’existe plus.' },
+  absent: MESSAGES.absent,
+};
+
+const DUREE_MAXIMALE_MINUTES = 7 * 24 * 60;
+
 const debutDeJour = (date: string) => new Date(`${date}T00:00:00${DECALAGE_BURUNDI}`);
 
 export function creerServiceTrajets(prisma: Prisma) {
@@ -106,6 +116,11 @@ export function creerServiceTrajets(prisma: Prisma) {
         { champ: 'arrivee_prevue', message: 'L’arrivée doit être après le départ.' },
       ]);
     }
+    if (arrivee.getTime() - depart.getTime() > DUREE_MAXIMALE_MINUTES * MS_PAR_MINUTE) {
+      throw new ValidationEchouee([
+        { champ: 'arrivee_prevue', message: 'Un trajet dure 7 jours au maximum.' },
+      ]);
+    }
   }
 
   async function creer(donnees: DonneesCreationTrajet) {
@@ -132,14 +147,18 @@ export function creerServiceTrajets(prisma: Prisma) {
     verifierOrdreDesHeures(donnees.depart_prevu, arrivee);
     await verifierVehicule(donnees.vehicule_id, donnees.depart_prevu, arrivee);
 
-    return prisma.trajet.create({
-      data: {
-        ligne_id: donnees.ligne_id,
-        vehicule_id: donnees.vehicule_id,
-        depart_prevu: donnees.depart_prevu,
-        arrivee_prevue: arrivee,
-      },
-    });
+    try {
+      return await prisma.trajet.create({
+        data: {
+          ligne_id: donnees.ligne_id,
+          vehicule_id: donnees.vehicule_id,
+          depart_prevu: donnees.depart_prevu,
+          arrivee_prevue: arrivee,
+        },
+      });
+    } catch (erreur) {
+      return traduireErreurPrisma(erreur, MESSAGES_ECRITURE);
+    }
   }
 
   async function modifier(id: number, donnees: DonneesModificationTrajet) {
@@ -162,15 +181,19 @@ export function creerServiceTrajets(prisma: Prisma) {
         donnees.vehicule_id !== undefined && donnees.vehicule_id !== actuel.vehicule_id,
       );
     }
-    return prisma.trajet.update({
-      where: { id_trajet: id },
-      data: {
-        vehicule_id: donnees.vehicule_id,
-        depart_prevu: donnees.depart_prevu,
-        arrivee_prevue: donnees.arrivee_prevue,
-        statut: donnees.statut,
-      },
-    });
+    try {
+      return await prisma.trajet.update({
+        where: { id_trajet: id },
+        data: {
+          vehicule_id: donnees.vehicule_id,
+          depart_prevu: donnees.depart_prevu,
+          arrivee_prevue: donnees.arrivee_prevue,
+          statut: donnees.statut,
+        },
+      });
+    } catch (erreur) {
+      return traduireErreurPrisma(erreur, MESSAGES_ECRITURE);
+    }
   }
 
   async function supprimer(id: number): Promise<void> {

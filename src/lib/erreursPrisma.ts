@@ -13,6 +13,8 @@ interface Messages {
   utilise?: MessageConflit;
   /** Élément absent. */
   absent?: string;
+  /** Deux éléments qui se chevauchent (contrainte d'exclusion PostgreSQL). */
+  chevauche?: MessageConflit;
 }
 
 /**
@@ -38,6 +40,14 @@ export function traduireErreurPrisma(erreur: unknown, messages: Messages): never
     /violates RESTRICT setting of foreign key/.test(erreur.message)
   ) {
     throw new Conflit(messages.utilise.code, messages.utilise.message);
+  }
+  // Contrainte d'exclusion (code 23P01) : Prisma la renvoie aussi comme erreur inconnue.
+  if (
+    erreur instanceof PrismaErreurs.PrismaClientUnknownRequestError &&
+    messages.chevauche &&
+    /exclusion constraint/.test(erreur.message)
+  ) {
+    throw new Conflit(messages.chevauche.code, messages.chevauche.message);
   }
   throw erreur;
 }

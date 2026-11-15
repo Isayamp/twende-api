@@ -5,7 +5,7 @@ const LIMITE_MAXIMUM = 100;
 
 /** Champs de pagination communs à toutes les listes : ?page=2&limite=20 */
 export const champsPagination = {
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).max(10000).default(1),
   limite: z.coerce.number().int().min(1).max(LIMITE_MAXIMUM).default(LIMITE_PAR_DEFAUT),
 };
 

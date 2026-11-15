@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { identifiantJson } from '../../lib/identifiants.js';
 import { champsPagination } from '../../lib/pagination.js';
 
-const identifiant = z.number().int().min(1).max(2147483647);
+const identifiant = identifiantJson;
 const identifiantRequete = z.coerce.number().int().min(1).max(2147483647);
 
 // Date seule « 2030-06-10 » : le format ET le calendrier sont vérifiés (pas de 31 février).
@@ -39,6 +40,10 @@ export const schemaRechercheTrajets = z
   .refine((d) => d.depart !== d.arrivee, {
     message: 'Le départ et l’arrivée doivent être différents.',
     path: ['arrivee'],
+  })
+  .refine((d) => !d.heure_min || !d.heure_max || d.heure_min <= d.heure_max, {
+    message: 'heure_min doit être avant heure_max.',
+    path: ['heure_min'],
   });
 
 export type RechercheTrajets = z.infer<typeof schemaRechercheTrajets>;

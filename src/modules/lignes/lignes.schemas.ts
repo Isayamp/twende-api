@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { identifiantJson } from '../../lib/identifiants.js';
 import { champsPagination } from '../../lib/pagination.js';
 import { booleenRequete } from '../../lib/requete.js';
 
@@ -23,7 +24,7 @@ export const schemaRechercheLignes = z.object({
   active: booleenRequete.optional(),
 });
 
-const identifiant = z.number().int().min(1);
+const identifiant = identifiantJson;
 
 export const schemaArrets = z.object({
   arrets: z
@@ -44,7 +45,7 @@ export const schemaArrets = z.object({
 
 // Le prix peut être un nombre ou un texte décimal (ex. "7500.50"). Jamais de calcul en flottant.
 const prix = z.union([
-  z.number().min(0).max(9999999999),
+  z.number().min(0).max(9999999999).multipleOf(0.01),
   z.string().regex(/^\d{1,10}(\.\d{1,2})?$/, 'Prix invalide.'),
 ]);
 
