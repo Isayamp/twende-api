@@ -64,4 +64,6 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - SQL brut seulement pour la recherche, avec des paramètres (`Prisma.sql`) : un test vérifie qu'une tentative d'injection est refusée.
 - Piège : PostgreSQL renvoie une erreur « RESTRICT » que Prisma ne code pas (erreur inconnue). `traduireErreurPrisma` la reconnaît et renvoie un 409.
 - Piège : après un changement de valeur par défaut dans le schéma, relancer `npx prisma generate` (arrêter le serveur avant, sous Windows).
-- Limite connue : deux créations de trajets simultanées pour le même véhicule pourraient passer la vérification de chevauchement (une contrainte d'exclusion PostgreSQL règlerait cela ; à voir en bonus).
+- **Revue de sécurité** : aucun problème critique. Point grave corrigé : deux créations simultanées pouvaient double-réserver un véhicule. Une contrainte d'exclusion PostgreSQL (migration `20261115080000`, extension `btree_gist`) l'interdit maintenant dans la base ; l'erreur devient un 409. Un test lance 4 créations en parallèle : 1 succès, 3 refus.
+- Aussi corrigés : page limitée à 10 000, durée d'un trajet limitée à 7 jours, `heure_min` avant `heure_max`, prix à 2 décimales, identifiants bornés.
+- Reste à faire plus tard (non bloquant) : limiteur dédié sur la recherche publique, masquer les lignes inactives et trajets annulés côté public, table des transitions de statut, refus de modifier un trajet qui a déjà des billets.
