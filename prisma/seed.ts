@@ -1,5 +1,6 @@
 // Jeu de données de test (seeder). On peut le relancer sans créer de doublons.
-// Les distances et les prix sont fictifs : ils servent seulement à la démonstration.
+// Simulation : réseau de bus au départ de Bujumbura (Burundi), prix en francs burundais (BIF).
+// Les distances, les horaires et les prix sont fictifs : ils servent seulement à la démonstration.
 // Aucun mot de passe de base de données ici : DATABASE_URL vient du fichier .env.
 import { existsSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
@@ -11,7 +12,9 @@ const prisma = new PrismaClient();
 
 // Mot de passe des comptes de test (valeur de démonstration, pas un vrai secret).
 const MOT_DE_PASSE_TEST = process.env.SEED_MOT_DE_PASSE ?? 'Twende#2026';
-const TARIF_CENTS_PAR_KM = 12; // 0,12 USD par km, calculé en centimes entiers
+const DEVISE = 'BIF';
+const TARIF_BIF_PAR_KM = 90; // prix de base par km
+const ARRONDI_BIF = 500; // les billets sont arrondis à 500 BIF près
 const JOURS_DE_TRAJETS = 7;
 
 interface ArretSeed {
@@ -27,62 +30,78 @@ interface LigneSeed {
 }
 
 const STATIONS = [
-  { nom: 'Gare routière de Goma', ville: 'Goma', pays: 'RD Congo' },
-  { nom: 'Gare routière de Rubavu', ville: 'Rubavu', pays: 'Rwanda' },
-  { nom: 'Gare routière de Nyabugogo', ville: 'Kigali', pays: 'Rwanda' },
-  { nom: 'Gare routière de Huye', ville: 'Huye', pays: 'Rwanda' },
-  { nom: 'Gare routière de Bukavu', ville: 'Bukavu', pays: 'RD Congo' },
-  { nom: "Gare routière d'Uvira", ville: 'Uvira', pays: 'RD Congo' },
   { nom: 'Gare routière de Bujumbura', ville: 'Bujumbura', pays: 'Burundi' },
+  { nom: 'Gare routière de Muramvya', ville: 'Muramvya', pays: 'Burundi' },
+  { nom: 'Gare routière de Gitega', ville: 'Gitega', pays: 'Burundi' },
+  { nom: 'Gare routière de Kayanza', ville: 'Kayanza', pays: 'Burundi' },
+  { nom: 'Gare routière de Ngozi', ville: 'Ngozi', pays: 'Burundi' },
+  { nom: 'Gare routière de Rumonge', ville: 'Rumonge', pays: 'Burundi' },
+  { nom: 'Gare routière de Makamba', ville: 'Makamba', pays: 'Burundi' },
+  { nom: 'Gare routière de Cibitoke', ville: 'Cibitoke', pays: 'Burundi' },
 ];
 
 const LIGNES: LigneSeed[] = [
   {
-    code: 'GOM-KGL',
-    nom: 'Goma - Kigali',
+    code: 'BJM-GTG',
+    nom: 'Bujumbura - Gitega',
     arrets: [
-      { ville: 'Goma', dixiemesKm: 0, minutes: 0 },
-      { ville: 'Rubavu', dixiemesKm: 50, minutes: 30 },
-      { ville: 'Kigali', dixiemesKm: 1600, minutes: 240 },
+      { ville: 'Bujumbura', dixiemesKm: 0, minutes: 0 },
+      { ville: 'Muramvya', dixiemesKm: 480, minutes: 60 },
+      { ville: 'Gitega', dixiemesKm: 1000, minutes: 120 },
     ],
   },
   {
-    code: 'BKV-BJM',
-    nom: 'Bukavu - Bujumbura',
+    code: 'BJM-NGZ',
+    nom: 'Bujumbura - Ngozi',
     arrets: [
-      { ville: 'Bukavu', dixiemesKm: 0, minutes: 0 },
-      { ville: 'Uvira', dixiemesKm: 1200, minutes: 210 },
-      { ville: 'Bujumbura', dixiemesKm: 1450, minutes: 270 },
+      { ville: 'Bujumbura', dixiemesKm: 0, minutes: 0 },
+      { ville: 'Muramvya', dixiemesKm: 480, minutes: 60 },
+      { ville: 'Kayanza', dixiemesKm: 900, minutes: 110 },
+      { ville: 'Ngozi', dixiemesKm: 1250, minutes: 150 },
     ],
   },
   {
-    code: 'KGL-BJM',
-    nom: 'Kigali - Bujumbura',
+    code: 'BJM-MKB',
+    nom: 'Bujumbura - Makamba (route du lac)',
     arrets: [
-      { ville: 'Kigali', dixiemesKm: 0, minutes: 0 },
-      { ville: 'Huye', dixiemesKm: 1300, minutes: 150 },
-      { ville: 'Bujumbura', dixiemesKm: 2700, minutes: 330 },
+      { ville: 'Bujumbura', dixiemesKm: 0, minutes: 0 },
+      { ville: 'Rumonge', dixiemesKm: 750, minutes: 90 },
+      { ville: 'Makamba', dixiemesKm: 1400, minutes: 180 },
+    ],
+  },
+  {
+    code: 'BJM-CBT',
+    nom: 'Bujumbura - Cibitoke',
+    arrets: [
+      { ville: 'Bujumbura', dixiemesKm: 0, minutes: 0 },
+      { ville: 'Cibitoke', dixiemesKm: 600, minutes: 90 },
     ],
   },
 ];
 
+// Deux véhicules par ligne (voir creerTrajets).
 const VEHICULES = [
-  { immatriculation: 'RAB-101-A', modele: 'Yutong ZK6129', nombre_places: 49 },
-  { immatriculation: 'RAB-102-A', modele: 'Yutong ZK6129', nombre_places: 49 },
-  { immatriculation: 'CGO-201-B', modele: 'Higer KLQ6129', nombre_places: 45 },
-  { immatriculation: 'CGO-202-B', modele: 'Higer KLQ6129', nombre_places: 45 },
-  { immatriculation: 'BDI-301-C', modele: 'Toyota Coaster', nombre_places: 30 },
-  { immatriculation: 'BDI-302-C', modele: 'Toyota Coaster', nombre_places: 30 },
+  { immatriculation: 'A-1201-B', modele: 'Yutong ZK6129', nombre_places: 49 },
+  { immatriculation: 'A-1202-B', modele: 'Yutong ZK6129', nombre_places: 49 },
+  { immatriculation: 'A-2301-C', modele: 'Higer KLQ6129', nombre_places: 45 },
+  { immatriculation: 'A-2302-C', modele: 'Higer KLQ6129', nombre_places: 45 },
+  { immatriculation: 'A-3401-D', modele: 'Toyota Coaster', nombre_places: 30 },
+  { immatriculation: 'A-3402-D', modele: 'Toyota Coaster', nombre_places: 30 },
+  { immatriculation: 'A-4501-E', modele: 'Toyota Coaster', nombre_places: 30 },
+  { immatriculation: 'A-4502-E', modele: 'Toyota Coaster', nombre_places: 30 },
 ];
 
-// Horaires de départ (heure UTC) : deux départs par jour pour chaque ligne.
-const HEURES_DEPART = [7, 14];
+// Départs à 07h00 et 14h00, heure du Burundi (UTC+2), donc 05h00 et 12h00 en UTC.
+const HEURES_DEPART = [5, 12];
 
-/** Transforme un montant en centimes entiers en texte décimal, par exemple 1950 -> "19.50". */
-function centimesEnTexte(centimes: number): string {
-  const entier = Math.floor(centimes / 100);
-  const reste = String(centimes % 100).padStart(2, '0');
-  return `${entier}.${reste}`;
+/**
+ * Prix d'un tronçon en BIF, avec des entiers seulement (pas de flottant).
+ * Exemple : 100,0 km -> 1000 dixièmes -> 1000 x 90 / 10 = 9000, arrondi à 500 près -> "9000.00".
+ */
+function prixTroncon(dixiemesKm: number): string {
+  const brut = (dixiemesKm * TARIF_BIF_PAR_KM) / 10;
+  const arrondi = Math.max(ARRONDI_BIF, Math.round(brut / ARRONDI_BIF) * ARRONDI_BIF);
+  return `${arrondi}.00`;
 }
 
 /** Texte décimal d'une distance donnée en dixièmes de km, par exemple 1600 -> "160.0". */
@@ -95,14 +114,18 @@ async function creerComptes(): Promise<void> {
   const comptes = [
     { nom_complet: 'Administrateur Twende', email: 'admin@twende.test', role: 'admin' as const },
     { nom_complet: 'Agent de guichet', email: 'agent@twende.test', role: 'agent' as const },
-    { nom_complet: 'Amani Kasongo', email: 'passager@twende.test', role: 'passager' as const },
-    { nom_complet: 'Neema Uwase', email: 'passager2@twende.test', role: 'passager' as const },
+    { nom_complet: 'Aimé Niyonkuru', email: 'passager@twende.test', role: 'passager' as const },
+    {
+      nom_complet: 'Chantal Ndayishimiye',
+      email: 'passager2@twende.test',
+      role: 'passager' as const,
+    },
   ];
   for (const compte of comptes) {
     await prisma.utilisateur.upsert({
       where: { email: compte.email },
       update: {},
-      create: { ...compte, telephone: '+243990000000', mot_de_passe_hash: hash },
+      create: { ...compte, telephone: '+25779000000', mot_de_passe_hash: hash },
     });
   }
 }
@@ -143,11 +166,10 @@ async function creerLigne(ligne: LigneSeed, stations: Map<string, number>): Prom
     });
   }
 
-  // Un tarif pour chaque couple (départ avant arrivée) : 0,12 USD par km.
+  // Un tarif pour chaque couple (départ avant arrivée) : environ 90 BIF par km.
   for (let i = 0; i < ligne.arrets.length; i++) {
     for (let j = i + 1; j < ligne.arrets.length; j++) {
       const km10 = ligne.arrets[j].dixiemesKm - ligne.arrets[i].dixiemesKm;
-      const centimes = Math.round((km10 * TARIF_CENTS_PAR_KM) / 10);
       await prisma.tarif.upsert({
         where: {
           ligne_id_station_depart_id_station_arrivee_id: {
@@ -161,8 +183,8 @@ async function creerLigne(ligne: LigneSeed, stations: Map<string, number>): Prom
           ligne_id: creee.id_ligne,
           station_depart_id: stations.get(ligne.arrets[i].ville)!,
           station_arrivee_id: stations.get(ligne.arrets[j].ville)!,
-          prix: centimesEnTexte(centimes),
-          devise: 'USD',
+          prix: prixTroncon(km10),
+          devise: DEVISE,
         },
       });
     }
