@@ -1,0 +1,239 @@
+// Schéma Prisma de Twende API.
+// Il suit exactement le MLD (docs/conception/mld.png) et le script docs/conception/schema.sql.
+// Les noms des champs sont gardés en snake_case pour être identiques à la base.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Listes de valeurs fixes ----------
+
+enum RoleUtilisateur {
+  admin
+  agent
+  passager
+
+  @@map("role_utilisateur")
+}
+
+enum StatutTrajet {
+  planifie
+  en_cours
+  termine
+  annule
+
+  @@map("statut_trajet")
+}
+
+enum StatutReservation {
+  confirmee
+  annulee
+
+  @@map("statut_reservation")
+}
+
+enum StatutPaiement {
+  en_attente
+  paye
+
+  @@map("statut_paiement")
+}
+
+enum StatutBillet {
+  valide
+  annule
+  utilise
+
+  @@map("statut_billet")
+}
+
+// ---------- Comptes et sécurité ----------
+
+model Utilisateur {
+  id_utilisateur    Int             @id @default(autoincrement())
+  nom_complet       String          @db.VarChar(120)
+  email             String          @unique @db.VarChar(160)
+  telephone         String?         @db.VarChar(30)
+  mot_de_passe_hash String          @db.VarChar(100)
+  role              RoleUtilisateur @default(passager)
+  actif             Boolean         @default(true)
+  cree_le           DateTime        @default(now()) @db.Timestamptz(6)
+
+  jetons       JetonRafraichissement[]
+  passagers    Passager[]
+  reservations Reservation[]
+
+  @@map("utilisateur")
+}
+
+model JetonRafraichissement {
+  id_jeton       Int         @id @default(autoincrement())
+  utilisateur_id Int
+  hash_jeton     String      @unique @db.VarChar(100)
+  expire_le      DateTime    @db.Timestamptz(6)
+  revoque        Boolean     @default(false)
+  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id_utilisateur], onDelete: Cascade)
+
+  @@index([utilisateur_id])
+  @@map("jeton_rafraichissement")
+}
+
+// ---------- Réseau de transport ----------
+
+model Station {
+  id_station Int    @id @default(autoincrement())
+  nom        String @db.VarChar(100)
+  ville      String @db.VarChar(100)
+  pays       String @db.VarChar(60)
+
+  arrets               LigneStation[]
+  tarifs_depart        Tarif[]        @relation("TarifDepart")
+  tarifs_arrivee       Tarif[]        @relation("TarifArrivee")
+  reservations_depart  Reservation[]  @relation("ReservationDepart")
+  reservations_arrivee Reservation[]  @relation("ReservationArrivee")
+
+  @@unique([nom, ville])
+  @@index([ville])
+  @@map("station")
+}
+
+model Ligne {
+  id_ligne Int     @id @default(autoincrement())
+  code     String  @unique @db.VarChar(20)
+  nom      String  @db.VarChar(120)
+  active   Boolean @default(true)
+
+  arrets  LigneStation[]
+  tarifs  Tarif[]
+  trajets Trajet[]
+
+  @@map("ligne")
+}
+
+// Arrêts d'une ligne, dans l'ordre.
+model LigneStation {
+  ligne_id               Int
+  station_id             Int
+  ordre                  Int
+  distance_km            Decimal @default(0) @db.Decimal(7, 1)
+  minutes_depuis_origine Int     @default(0)
+  ligne                  Ligne   @relation(fields: [ligne_id], references: [id_ligne], onDelete: Cascade)
+  station                Station @relation(fields: [station_id], references: [id_station])
+
+  @@id([ligne_id, station_id])
+  @@unique([ligne_id, ordre])
+  @@map("ligne_station")
+}
+
+// Prix par tronçon : un prix pour chaque couple (départ, arrivée) d'une ligne.
+model Tarif {
+  id_tarif           Int     @id @default(autoincrement())
+  ligne_id           Int
+  station_depart_id  Int
+  station_arrivee_id Int
+  prix               Decimal @db.Decimal(12, 2)
+  devise             String  @default("USD") @db.Char(3)
+  ligne              Ligne   @relation(fields: [ligne_id], references: [id_ligne], onDelete: Cascade)
+  station_depart     Station @relation("TarifDepart", fields: [station_depart_id], references: [id_station])
+  station_arrivee    Station @relation("TarifArrivee", fields: [station_arrivee_id], references: [id_station])
+
+  @@unique([ligne_id, station_depart_id, station_arrivee_id])
+  @@map("tarif")
+}
+
+model Vehicule {
+  id_vehicule     Int     @id @default(autoincrement())
+  immatriculation String  @unique @db.VarChar(20)
+  modele          String  @db.VarChar(80)
+  nombre_places   Int
+  active          Boolean @default(true)
+
+  trajets Trajet[]
+
+  @@map("vehicule")
+}
+
+// Un trajet = un départ planifié d'une ligne avec un véhicule.
+model Trajet {
+  id_trajet      Int          @id @default(autoincrement())
+  ligne_id       Int
+  vehicule_id    Int
+  depart_prevu   DateTime     @db.Timestamptz(6)
+  arrivee_prevue DateTime     @db.Timestamptz(6)
+  statut         StatutTrajet @default(planifie)
+  ligne          Ligne        @relation(fields: [ligne_id], references: [id_ligne])
+  vehicule       Vehicule     @relation(fields: [vehicule_id], references: [id_vehicule])
+
+  reservations Reservation[]
+  billets      Billet[]
+
+  @@index([depart_prevu])
+  @@index([ligne_id])
+  @@map("trajet")
+}
+
+// ---------- Réservations et billets ----------
+
+// Une personne qui voyage. Peut être liée à un compte, ou saisie au guichet.
+model Passager {
+  id_passager    Int          @id @default(autoincrement())
+  utilisateur_id Int?
+  nom_complet    String       @db.VarChar(120)
+  telephone      String       @db.VarChar(30)
+  email          String?      @db.VarChar(160)
+  utilisateur    Utilisateur? @relation(fields: [utilisateur_id], references: [id_utilisateur], onDelete: SetNull)
+
+  billets Billet[]
+
+  @@map("passager")
+}
+
+model Reservation {
+  id_reservation     Int               @id @default(autoincrement())
+  code               String            @unique @db.VarChar(20)
+  utilisateur_id     Int
+  trajet_id          Int
+  station_depart_id  Int
+  station_arrivee_id Int
+  statut             StatutReservation @default(confirmee)
+  statut_paiement    StatutPaiement    @default(en_attente)
+  montant_total      Decimal           @db.Decimal(12, 2)
+  devise             String            @default("USD") @db.Char(3)
+  cree_le            DateTime          @default(now()) @db.Timestamptz(6)
+  utilisateur        Utilisateur       @relation(fields: [utilisateur_id], references: [id_utilisateur])
+  trajet             Trajet            @relation(fields: [trajet_id], references: [id_trajet])
+  station_depart     Station           @relation("ReservationDepart", fields: [station_depart_id], references: [id_station])
+  station_arrivee    Station           @relation("ReservationArrivee", fields: [station_arrivee_id], references: [id_station])
+
+  billets Billet[]
+
+  @@index([utilisateur_id])
+  @@index([trajet_id])
+  @@map("reservation")
+}
+
+// Un billet = une place pour une personne.
+// Règle clé (index unique partiel ajouté en SQL dans la migration) :
+// une place ne peut pas être vendue deux fois sur un trajet tant que le billet n'est pas annulé.
+model Billet {
+  id_billet      Int          @id @default(autoincrement())
+  numero         String       @unique @db.VarChar(20)
+  reservation_id Int
+  trajet_id      Int
+  passager_id    Int
+  numero_place   Int
+  prix           Decimal      @db.Decimal(12, 2)
+  statut         StatutBillet @default(valide)
+  cree_le        DateTime     @default(now()) @db.Timestamptz(6)
+  reservation    Reservation  @relation(fields: [reservation_id], references: [id_reservation], onDelete: Cascade)
+  trajet         Trajet       @relation(fields: [trajet_id], references: [id_trajet])
+  passager       Passager     @relation(fields: [passager_id], references: [id_passager])
+
+  @@index([reservation_id])
+  @@map("billet")
+}

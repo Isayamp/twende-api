@@ -17,10 +17,11 @@
 
 Bloquant : le mot de passe PostgreSQL à saisir dans `.env`.
 
-- [ ] Initialisation Node + TypeScript + Express, structure des dossiers, ESLint et Prettier
-- [ ] Configuration `.env` validée par Zod, journalisation Pino, Helmet, CORS, limitation de débit
-- [ ] Prisma : schéma, première migration, seeders (stations, lignes, tarifs, véhicules, trajets, comptes de test)
-- [ ] Gestionnaire d'erreurs central et format de réponse
+- [x] Initialisation Node + TypeScript + Express, structure des dossiers, Prettier
+- [x] Configuration `.env` validée par Zod, journalisation Pino, Helmet, CORS, limitation de débit
+- [x] Prisma : schéma, migration initiale et seeder écrits
+- [ ] Migration et seeder **exécutés** sur PostgreSQL (attend le mot de passe dans `.env`)
+- [x] Gestionnaire d'erreurs central et format de réponse
 - [ ] Inscription, connexion, rafraîchissement, déconnexion (bcrypt, JWT)
 - [ ] Middleware de rôles (admin, agent, passager)
 - [ ] Tests : auth et droits d'accès
