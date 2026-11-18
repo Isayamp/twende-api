@@ -32,12 +32,12 @@ Ordre voulu, pour pouvoir montrer la recherche le plus tôt possible :
 1. [x] CRUD stations, lignes et arrêts, tarifs, véhicules
 2. [x] CRUD trajets, règle de chevauchement de véhicule
 3. [x] **Recherche de trajets avec filtres et pagination** (premier objectif de démonstration)
-4. [ ] Plan des places
-5. [ ] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
-6. [ ] **Test de concurrence** (20 réservations en parallèle pour la même place)
-7. [ ] Annulation et règles de délai
-8. [ ] Passagers et paiement simple
-9. [ ] Revue de sécurité avant fusion
+4. [x] Plan des places
+5. [x] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
+6. [x] **Test de concurrence** (20 réservations en parallèle pour la même place)
+7. [x] Annulation et règles de délai
+8. [x] Paiement simple (statut) ; [ ] routes `/passagers` du guichet
+9. [ ] Revue de sécurité avant fusion (en cours)
 
 ## Phase 4 : finition
 
