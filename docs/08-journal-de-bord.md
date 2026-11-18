@@ -67,3 +67,24 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - **Revue de sécurité** : aucun problème critique. Point grave corrigé : deux créations simultanées pouvaient double-réserver un véhicule. Une contrainte d'exclusion PostgreSQL (migration `20261115080000`, extension `btree_gist`) l'interdit maintenant dans la base ; l'erreur devient un 409. Un test lance 4 créations en parallèle : 1 succès, 3 refus.
 - Aussi corrigés : page limitée à 10 000, durée d'un trajet limitée à 7 jours, `heure_min` avant `heure_max`, prix à 2 décimales, identifiants bornés.
 - Reste à faire plus tard (non bloquant) : limiteur dédié sur la recherche publique, masquer les lignes inactives et trajets annulés côté public, table des transitions de statut, refus de modifier un trajet qui a déjà des billets.
+
+## Places et réservations (2026-11-18)
+
+- Branche `feat/reservations`. Tests écrits avant le code (144 tests verts, couverture environ 96 %).
+- **Plan des places** `GET /trajets/:id/places` (public) : chaque place est `libre` ou `occupee`. Aucune information sur les voyageurs n'est donnée. Un billet annulé libère la place.
+- **Réservation** `POST /reservations` : tout se fait dans une transaction. On verrouille la ligne du trajet (`SELECT ... FOR UPDATE`), on vérifie le trajet (planifié, pas encore parti), le tronçon et son tarif, les numéros de place, puis les places déjà prises. Si une seule place est prise : 409 `PLACE_DEJA_PRISE` et rien n'est créé (tout ou rien). Le montant est calculé avec le tarif du tronçon (Decimal). Codes aléatoires `RES-XXXXXXXX` et `TWD-XXXXXXXX`.
+- Sans passager indiqué, le billet prend le profil du compte (téléphone obligatoire, sinon 422).
+- **Filet de sécurité** : si le verrou était contourné, l'index unique partiel `uq_billet_place_par_trajet` refuse le doublon (erreur P2002 transformée en 409).
+- **Annulation** : le passager seulement à plus de 2 h du départ (409 `ANNULATION_TARDIVE`), le personnel à tout moment. Les billets passent à `annule`, les places sont libres tout de suite. Double annulation : 409 `DEJA_ANNULEE`.
+- **Paiement** : `PATCH /reservations/:id/paiement`, personnel seulement. Mise à jour conditionnelle : deux paiements simultanés, un seul passe (409 `DEJA_PAYEE`). Réservation annulée : 409.
+- Un passager qui demande la réservation d'un autre reçoit 404.
+- **Test de concurrence** : 20 demandes simultanées pour la même place = 1×201 et 19×409. 30 demandes pour 10 places = exactement 10 ventes. 3 réservations multi-places qui se croisent = une seule passe, aucun billet à moitié.
+
+**Revue de sécurité des réservations (18/11) et corrections**
+- Aucun problème critique : le verrou `FOR UPDATE` + l'index unique tiennent. Trois points graves corrigés, avec tests (151 tests verts) :
+  - Paiement et annulation en même temps pouvaient donner « annulée » ET « payée » : les deux sont maintenant des mises à jour conditionnelles (`statut = confirmee` et `statut_paiement = en_attente`). Une seule gagne. Une réservation payée ne s'annule plus par l'API (409 `RESERVATION_PAYEE`) : le remboursement se fait hors de l'API.
+  - Deux annulations simultanées répondaient 200 toutes les deux : maintenant 1×200 et le reste 409 `DEJA_ANNULEE`.
+  - Un passager pouvait bloquer un bus avec des réservations jamais payées : plafond de 5 réservations en attente par passager (409 `TROP_DE_RESERVATIONS_EN_ATTENTE`, verrou sur le compte), limite de 30 créations par minute par utilisateur (429), délais de transaction réduits (5 s / 10 s). Le personnel n'a pas ce plafond.
+- Aussi corrigé : changer le véhicule d'un trajet est refusé si une place vendue dépasse sa capacité (409 `VEHICULE_TROP_PETIT`) ; annuler un trajet annule ses réservations et billets ; téléphone et nom du passager mieux validés.
+- **Trouvé en route** : le test « deux créations de trajet pour le même véhicule » échouait environ 1 fois sur 3 avec une erreur 500 : PostgreSQL détectait une impasse (`deadlock detected`, code 40P01) entre insertions simultanées sous la contrainte d'exclusion. Correction : un verrou léger par véhicule (`pg_advisory_xact_lock`) dans la création et la modification de trajet. 10 essais de suite sans échec.
+- Reste à faire plus tard : expiration automatique des réservations non payées (tâche planifiée), état « à rembourser », limiteur dédié sur la recherche publique, journal des annulations et paiements faits par le personnel.

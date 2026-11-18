@@ -43,6 +43,10 @@ export function creerRoutesTrajets(deps: { config: Config; prisma: Prisma }): Ro
     envoyerSucces(res, await service.lire(Number(req.params.id)));
   });
 
+  routes.get('/:id/places', valider({ parametres: schemaId }), async (req, res) => {
+    envoyerSucces(res, await service.places(Number(req.params.id)));
+  });
+
   routes.post('/', ...admin, valider({ corps: schemaCreationTrajet }), async (req, res) => {
     envoyerSucces(res, await service.creer(req.body), 201);
   });

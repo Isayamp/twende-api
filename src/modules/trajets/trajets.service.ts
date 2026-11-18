@@ -29,6 +29,13 @@ const MESSAGES_ECRITURE = {
 
 const DUREE_MAXIMALE_MINUTES = 7 * 24 * 60;
 
+type Transaction = Parameters<Parameters<Prisma['$transaction']>[0]>[0];
+
+/** Verrou PostgreSQL léger (levé à la fin de la transaction) : un seul changement à la fois par véhicule. */
+async function verrouillerVehicule(tx: Transaction, vehiculeId: number): Promise<void> {
+  await tx.$queryRaw`SELECT 1 AS verrou FROM (SELECT pg_advisory_xact_lock(${vehiculeId})) AS t`;
+}
+
 const debutDeJour = (date: string) => new Date(`${date}T00:00:00${DECALAGE_BURUNDI}`);
 
 export function creerServiceTrajets(prisma: Prisma) {
@@ -76,6 +83,30 @@ export function creerServiceTrajets(prisma: Prisma) {
       where: { trajet_id: id, statut: { not: 'annule' } },
     });
     return { ...trajet, places_libres: trajet.vehicule.nombre_places - vendues };
+  }
+
+  /** Plan des places : libre ou occupée. Aucune information sur les voyageurs n'est donnée. */
+  async function places(id: number) {
+    const trajet = await prisma.trajet.findUnique({
+      where: { id_trajet: id },
+      select: { vehicule: { select: { nombre_places: true } } },
+    });
+    if (!trajet) throw new NonTrouve(MESSAGES.absent);
+    const billets = await prisma.billet.findMany({
+      where: { trajet_id: id, statut: { not: 'annule' } },
+      select: { numero_place: true },
+    });
+    const occupees = new Set(billets.map((b) => b.numero_place));
+    const nombre = trajet.vehicule.nombre_places;
+    return {
+      trajet_id: id,
+      nombre_places: nombre,
+      places_libres: nombre - occupees.size,
+      places: Array.from({ length: nombre }, (_, i) => ({
+        numero: i + 1,
+        statut: occupees.has(i + 1) ? ('occupee' as const) : ('libre' as const),
+      })),
+    };
   }
 
   /** Règles communes : le véhicule existe et est actif, et il n'a pas déjà un trajet à ce moment. */
@@ -148,13 +179,18 @@ export function creerServiceTrajets(prisma: Prisma) {
     await verifierVehicule(donnees.vehicule_id, donnees.depart_prevu, arrivee);
 
     try {
-      return await prisma.trajet.create({
-        data: {
-          ligne_id: donnees.ligne_id,
-          vehicule_id: donnees.vehicule_id,
-          depart_prevu: donnees.depart_prevu,
-          arrivee_prevue: arrivee,
-        },
+      // Un verrou par véhicule : les créations pour le même bus passent une par une.
+      // (Sans lui, des insertions simultanées pouvaient provoquer une impasse PostgreSQL.)
+      return await prisma.$transaction(async (tx) => {
+        await verrouillerVehicule(tx, donnees.vehicule_id);
+        return tx.trajet.create({
+          data: {
+            ligne_id: donnees.ligne_id,
+            vehicule_id: donnees.vehicule_id,
+            depart_prevu: donnees.depart_prevu,
+            arrivee_prevue: arrivee,
+          },
+        });
       });
     } catch (erreur) {
       return traduireErreurPrisma(erreur, MESSAGES_ECRITURE);
@@ -182,14 +218,47 @@ export function creerServiceTrajets(prisma: Prisma) {
       );
     }
     try {
-      return await prisma.trajet.update({
-        where: { id_trajet: id },
-        data: {
-          vehicule_id: donnees.vehicule_id,
-          depart_prevu: donnees.depart_prevu,
-          arrivee_prevue: donnees.arrivee_prevue,
-          statut: donnees.statut,
-        },
+      // Même verrou que la réservation : pas de vente pendant qu'on change le véhicule ou le statut.
+      return await prisma.$transaction(async (tx) => {
+        // Toujours dans cet ordre (véhicule puis trajet) pour éviter les impasses.
+        await verrouillerVehicule(tx, donnees.vehicule_id ?? actuel.vehicule_id);
+        await tx.$queryRaw`SELECT id_trajet FROM trajet WHERE id_trajet = ${id} FOR UPDATE`;
+        if (donnees.vehicule_id !== undefined && donnees.vehicule_id !== actuel.vehicule_id) {
+          const vehicule = await tx.vehicule.findUniqueOrThrow({
+            where: { id_vehicule: donnees.vehicule_id },
+          });
+          const vendues = await tx.billet.aggregate({
+            _max: { numero_place: true },
+            where: { trajet_id: id, statut: { not: 'annule' } },
+          });
+          if ((vendues._max.numero_place ?? 0) > vehicule.nombre_places) {
+            throw new Conflit(
+              'VEHICULE_TROP_PETIT',
+              'Ce véhicule est trop petit pour les places déjà vendues.',
+            );
+          }
+        }
+        const modifie = await tx.trajet.update({
+          where: { id_trajet: id },
+          data: {
+            vehicule_id: donnees.vehicule_id,
+            depart_prevu: donnees.depart_prevu,
+            arrivee_prevue: donnees.arrivee_prevue,
+            statut: donnees.statut,
+          },
+        });
+        // Trajet annulé : les réservations et les billets le sont aussi (les paiements sont à rembourser hors API).
+        if (statut === 'annule' && actuel.statut !== 'annule') {
+          await tx.reservation.updateMany({
+            where: { trajet_id: id, statut: 'confirmee' },
+            data: { statut: 'annulee' },
+          });
+          await tx.billet.updateMany({
+            where: { trajet_id: id, statut: 'valide' },
+            data: { statut: 'annule' },
+          });
+        }
+        return modifie;
       });
     } catch (erreur) {
       return traduireErreurPrisma(erreur, MESSAGES_ECRITURE);
@@ -204,5 +273,5 @@ export function creerServiceTrajets(prisma: Prisma) {
     }
   }
 
-  return { lister, lire, creer, modifier, supprimer };
+  return { lister, lire, places, creer, modifier, supprimer };
 }
