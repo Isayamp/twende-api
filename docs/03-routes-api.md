@@ -1,4 +1,6 @@
-# 03 - Routes de l'API (proposition)
+# 03 - Routes de l'API
+
+> Version de conception. La liste à jour et complète se trouve sur la page Swagger `http://localhost:3000/api-docs` et dans `docs/api/` (OpenAPI et collection Postman, générées depuis le code).
 
 Préfixe : `/api/v1`. Format : JSON. Authentification : en-tête `Authorization: Bearer <jeton>`.
 Rôles : **P** = passager, **A** = agent de guichet, **AD** = administrateur, **-** = public.

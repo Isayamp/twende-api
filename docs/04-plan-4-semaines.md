@@ -44,8 +44,8 @@ Ordre voulu, pour pouvoir montrer la recherche le plus tôt possible :
 - [x] Statistiques de remplissage
 - [ ] Bonus : QR code du billet
 - [ ] Bonus : tarif calculé selon la distance (si le temps le permet)
-- [ ] Couverture d'au moins 80 % sur la logique métier
-- [ ] Swagger généré depuis les schémas, collection Postman
+- [x] Couverture d'au moins 80 % sur la logique métier (environ 97 %)
+- [x] Swagger généré depuis les schémas, collection Postman
 - [ ] Petit front de démonstration (recherche, plan des places, billet), design validé par questions-réponses
 - [ ] Revue de code et audit de sécurité finaux
 - [ ] README complet, guide de continuité à jour

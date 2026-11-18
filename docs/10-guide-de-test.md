@@ -138,6 +138,13 @@ Tests automatiques : `tests/passagers/passagers.test.ts`, `tests/statistiques/re
 
 Le taux est un pourcentage avec une décimale. Les billets annulés et les trajets annulés ne comptent pas.
 
-## 6. Pas encore testable
+## 6. Swagger et Postman (ajouté le 18/11)
 
-QR code du billet (bonus), Swagger.
+- **Swagger** : lancer `npm run dev`, ouvrir `http://localhost:3000/api-docs`. Faire `POST /auth/login`, copier `jeton_acces`, cliquer sur « Authorize », coller le jeton. Puis « Try it out » sur n'importe quelle route. Les routes avec un cadenas demandent un jeton.
+- **Postman** : importer `docs/api/twende-api.postman_collection.json`. Lancer d'abord `POST /auth/login` : le jeton est enregistré tout seul et utilisé par toutes les autres requêtes. La variable `base_url` vaut `http://localhost:3000`.
+- Régénérer les deux fichiers après un changement de routes : `npm run docs:generer`.
+- Test automatique : `tests/docs/documentation.test.ts` (la page répond, la sécurité est décrite, chaque route documentée existe vraiment).
+
+## 7. Pas encore testable
+
+QR code du billet (bonus).

@@ -94,3 +94,13 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Branche `feat/passagers-statistiques`. 166 tests verts, couverture environ 96 %.
 - **/passagers** (personnel) : créer un client du guichet, lister (recherche `q` sur le nom ou le téléphone, pagination), lire, modifier. Suppression réservée à l'admin ; 409 `PASSAGER_UTILISE` si le passager a des billets. Même validation du nom et du téléphone que sur une réservation.
 - **Statistiques** (personnel) : `GET /statistiques/remplissage` (filtres `ligne_id`, `du`, `au`, pagination) donne un résumé sur toute la période et le taux de chaque trajet de la page ; `GET /trajets/:id/remplissage` donne le détail d'un trajet. Les billets annulés et les trajets annulés ne comptent pas. Capacité nulle : taux 0 (pas de division par zéro). SQL brut avec paramètres liés (`Prisma.sql`), dates à l'heure du Burundi.
+
+## Documentation de l'API (2026-11-18)
+
+- Branche `feat/documentation-api`. 172 tests verts, couverture environ 97 %.
+- **Une seule source** : `src/docs/operations.ts` liste les 43 routes (méthode, chemin, droit d'accès, schéma Zod du corps et de la requête, exemple, codes d'erreur). Les schémas sont ceux que l'API utilise pour valider : la documentation ne peut pas s'écarter de la validation.
+- **Swagger** : `swagger-ui-express` sert `/api-docs` (page) et `/api-docs.json` (spécification OpenAPI 3.1). Cadenas et bouton « Authorize » pour le jeton.
+- **Postman** : collection v2.1 générée depuis la même liste (`npm run docs:generer`). La connexion enregistre le jeton dans une variable de collection.
+- **Garde-fou** : un test appelle chaque route documentée et vérifie qu'aucune ne répond « route inconnue ». Une route renommée sans mise à jour de la liste fait échouer le test.
+- Dépendance ajoutée : `swagger-ui-express` (et ses types). Les scripts d'installation des paquets restent bloqués par npm (politique par défaut) : sans conséquence.
+- Piège : le test a échoué une fois avec `P1001` (base injoignable) : PostgreSQL n'était pas joignable un instant ; relancer suffit.
