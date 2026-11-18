@@ -3,7 +3,9 @@ import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { pinoHttp } from 'pino-http';
+import swaggerUi from 'swagger-ui-express';
 import type { Config } from './config/env.js';
+import { construireOpenApi } from './docs/openapi.js';
 import { creerLogger } from './lib/logger.js';
 import { prisma as prismaParDefaut, type Prisma } from './lib/prisma.js';
 import { gestionnaireErreurs, routeInconnue } from './middleware/gestionnaireErreurs.js';
@@ -28,6 +30,17 @@ export function creerApp(config: Config, prisma: Prisma = prismaParDefaut) {
       standardHeaders: true,
       legacyHeaders: false,
     }),
+  );
+
+  // Documentation : page Swagger et spécification OpenAPI (générée depuis les schémas de validation).
+  const specification = construireOpenApi();
+  app.get('/api-docs.json', (_req, res) => {
+    res.json(specification);
+  });
+  app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(specification as swaggerUi.JsonObject, { customSiteTitle: 'Twende API' }),
   );
 
   app.use('/api/v1', creerRoutes({ config, prisma }));
