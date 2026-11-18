@@ -4,7 +4,7 @@ import { champsPagination } from '../../lib/pagination.js';
 
 export const MAX_PLACES_PAR_RESERVATION = 10;
 
-const schemaPassager = z.object({
+export const schemaPassager = z.object({
   nom_complet: z
     .string()
     .trim()

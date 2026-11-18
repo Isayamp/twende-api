@@ -6,7 +6,7 @@ const identifiant = identifiantJson;
 const identifiantRequete = z.coerce.number().int().min(1).max(2147483647);
 
 // Date seule « 2030-06-10 » : le format ET le calendrier sont vérifiés (pas de 31 février).
-const dateSimple = z
+export const dateSimple = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format attendu : AAAA-MM-JJ.')
   .refine(

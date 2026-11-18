@@ -6,6 +6,7 @@ import { envoyerSucces } from '../../lib/reponses.js';
 import { creerAuthentifier } from '../../middleware/authentifier.js';
 import { exigerRole } from '../../middleware/roles.js';
 import { valider } from '../../middleware/valider.js';
+import { creerServiceStatistiques } from '../statistiques/statistiques.service.js';
 import { creerServiceRecherche } from './recherche.service.js';
 import {
   schemaCreationTrajet,
@@ -22,6 +23,7 @@ export function creerRoutesTrajets(deps: { config: Config; prisma: Prisma }): Ro
   const routes = Router();
   const recherche = creerServiceRecherche(deps.prisma);
   const service = creerServiceTrajets(deps.prisma);
+  const statistiques = creerServiceStatistiques(deps.prisma);
   const authentifier = creerAuthentifier(deps);
   const personnel = [authentifier, exigerRole('admin', 'agent')];
   const admin = [authentifier, exigerRole('admin')];
@@ -45,6 +47,10 @@ export function creerRoutesTrajets(deps: { config: Config; prisma: Prisma }): Ro
 
   routes.get('/:id/places', valider({ parametres: schemaId }), async (req, res) => {
     envoyerSucces(res, await service.places(Number(req.params.id)));
+  });
+
+  routes.get('/:id/remplissage', ...personnel, valider({ parametres: schemaId }), async (req, res) => {
+    envoyerSucces(res, await statistiques.remplissageTrajet(Number(req.params.id)));
   });
 
   routes.post('/', ...admin, valider({ corps: schemaCreationTrajet }), async (req, res) => {
