@@ -88,3 +88,9 @@ Une entrée par séance de travail. Les plus récentes en bas.
 - Aussi corrigé : changer le véhicule d'un trajet est refusé si une place vendue dépasse sa capacité (409 `VEHICULE_TROP_PETIT`) ; annuler un trajet annule ses réservations et billets ; téléphone et nom du passager mieux validés.
 - **Trouvé en route** : le test « deux créations de trajet pour le même véhicule » échouait environ 1 fois sur 3 avec une erreur 500 : PostgreSQL détectait une impasse (`deadlock detected`, code 40P01) entre insertions simultanées sous la contrainte d'exclusion. Correction : un verrou léger par véhicule (`pg_advisory_xact_lock`) dans la création et la modification de trajet. 10 essais de suite sans échec.
 - Reste à faire plus tard : expiration automatique des réservations non payées (tâche planifiée), état « à rembourser », limiteur dédié sur la recherche publique, journal des annulations et paiements faits par le personnel.
+
+## Passagers et statistiques (2026-11-18)
+
+- Branche `feat/passagers-statistiques`. 166 tests verts, couverture environ 96 %.
+- **/passagers** (personnel) : créer un client du guichet, lister (recherche `q` sur le nom ou le téléphone, pagination), lire, modifier. Suppression réservée à l'admin ; 409 `PASSAGER_UTILISE` si le passager a des billets. Même validation du nom et du téléphone que sur une réservation.
+- **Statistiques** (personnel) : `GET /statistiques/remplissage` (filtres `ligne_id`, `du`, `au`, pagination) donne un résumé sur toute la période et le taux de chaque trajet de la page ; `GET /trajets/:id/remplissage` donne le détail d'un trajet. Les billets annulés et les trajets annulés ne comptent pas. Capacité nulle : taux 0 (pas de division par zéro). SQL brut avec paramètres liés (`Prisma.sql`), dates à l'heure du Burundi.
