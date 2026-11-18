@@ -122,6 +122,22 @@ Invoke-RestMethod -Method Post -Uri http://localhost:3000/api/v1/reservations -H
 
 Preuve de la règle « aucune place vendue deux fois » : `npx vitest run tests/reservations/concurrence.test.ts` (20 demandes en même temps pour la même place : 1 succès, 19 conflits).
 
-## 5. Pas encore testable
+## 5. Passagers et statistiques (ajouté le 18/11)
 
-Routes `/passagers`, statistiques de remplissage, QR code.
+Tests automatiques : `tests/passagers/passagers.test.ts`, `tests/statistiques/remplissage.test.ts`. Total : 166 tests.
+
+| # | Requête (jeton agent ou admin) | Résultat attendu |
+|---|---|---|
+| 23 | `POST /passagers` avec `nom_complet`, `telephone`, `email` (facultatif) | 201 |
+| 24 | `GET /passagers?q=claire&limite=5` | 200, recherche par nom ou téléphone, pagination |
+| 25 | `DELETE /passagers/<id>` avec le jeton agent | 403 (admin seulement) |
+| 26 | `DELETE /passagers/<id>` d'un passager qui a des billets (admin) | 409 `PASSAGER_UTILISE` |
+| 27 | `GET /statistiques/remplissage?du=2026-11-01&au=2026-11-30&ligne_id=1` | 200, `resume` (taux global) et `trajets` (taux par trajet), pagination |
+| 28 | `GET /trajets/<id>/remplissage` | 200, capacité, places vendues, places libres, taux |
+| 29 | Les mêmes routes avec le jeton passager | 403 |
+
+Le taux est un pourcentage avec une décimale. Les billets annulés et les trajets annulés ne comptent pas.
+
+## 6. Pas encore testable
+
+QR code du billet (bonus), Swagger.

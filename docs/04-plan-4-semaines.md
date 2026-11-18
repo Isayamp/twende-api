@@ -36,12 +36,12 @@ Ordre voulu, pour pouvoir montrer la recherche le plus tôt possible :
 5. [x] Réservation : transaction, verrou de ligne, calcul du prix, billets à numéro unique
 6. [x] **Test de concurrence** (20 réservations en parallèle pour la même place)
 7. [x] Annulation et règles de délai
-8. [x] Paiement simple (statut) ; [ ] routes `/passagers` du guichet
-9. [ ] Revue de sécurité avant fusion (en cours)
+8. [x] Paiement simple (statut) et routes `/passagers` du guichet
+9. [x] Revue de sécurité avant fusion
 
 ## Phase 4 : finition
 
-- [ ] Statistiques de remplissage
+- [x] Statistiques de remplissage
 - [ ] Bonus : QR code du billet
 - [ ] Bonus : tarif calculé selon la distance (si le temps le permet)
 - [ ] Couverture d'au moins 80 % sur la logique métier
