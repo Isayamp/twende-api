@@ -1,0 +1,1420 @@
+{
+  "info": {
+    "name": "Twende API",
+    "description": "Lancez d’abord « POST /auth/login » : le jeton est enregistré et utilisé par toutes les autres requêtes. Comptes de démonstration : admin@twende.test, agent@twende.test, passager@twende.test.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jeton}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "jeton",
+      "value": ""
+    },
+    {
+      "key": "jeton_rafraichissement",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "description": "Inscription (rôle passager)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom_complet\": \"Aimé Niyonkuru\",\n  \"email\": \"aime@exemple.bi\",\n  \"telephone\": \"+25779000000\",\n  \"mot_de_passe\": \"MotDePasse123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "description": "Connexion : jeton d’accès (15 min) et jeton de rafraîchissement",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@twende.test\",\n  \"mot_de_passe\": \"Twende#2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.succes && json.donnees) {",
+                  "  pm.collectionVariables.set('jeton', json.donnees.jeton_acces);",
+                  "  pm.collectionVariables.set('jeton_rafraichissement', json.donnees.jeton_rafraichissement);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "description": "Nouveau jeton d’accès (le jeton de rafraîchissement change à chaque usage)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jeton_rafraichissement\": \"{{jeton_rafraichissement}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.succes && json.donnees) {",
+                  "  pm.collectionVariables.set('jeton', json.donnees.jeton_acces);",
+                  "  pm.collectionVariables.set('jeton_rafraichissement', json.donnees.jeton_rafraichissement);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "description": "Déconnexion : révoque le jeton de rafraîchissement",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jeton_rafraichissement\": \"{{jeton_rafraichissement}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "description": "Profil de l’utilisateur connecté",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stations",
+      "item": [
+        {
+          "name": "GET /stations",
+          "request": {
+            "method": "GET",
+            "description": "Liste des stations (recherche, pagination)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stations?ville=Bujumbura&limite=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations"
+              ],
+              "query": [
+                {
+                  "key": "ville",
+                  "value": "Bujumbura"
+                },
+                {
+                  "key": "limite",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /stations/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’une station",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stations/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /stations",
+          "request": {
+            "method": "POST",
+            "description": "Créer une station",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Gare routière de Rohero\",\n  \"ville\": \"Bujumbura\",\n  \"pays\": \"Burundi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/stations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /stations/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Modifier une station",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Gare routière de Ngagara\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/stations/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /stations/{id}",
+          "request": {
+            "method": "DELETE",
+            "description": "Supprimer une station (409 si elle est utilisée)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stations/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Véhicules",
+      "item": [
+        {
+          "name": "GET /vehicules",
+          "request": {
+            "method": "GET",
+            "description": "Liste des véhicules (recherche, état, pagination)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/vehicules?active=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicules"
+              ],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /vehicules/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’un véhicule",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/vehicules/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicules",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /vehicules",
+          "request": {
+            "method": "POST",
+            "description": "Créer un véhicule",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"BJ-1234-A\",\n  \"modele\": \"Yutong ZK6122\",\n  \"nombre_places\": 49\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/vehicules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /vehicules/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Modifier un véhicule",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/vehicules/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicules",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /vehicules/{id}",
+          "request": {
+            "method": "DELETE",
+            "description": "Supprimer un véhicule (409 s’il a des trajets)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/vehicules/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicules",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lignes",
+      "item": [
+        {
+          "name": "GET /lignes",
+          "request": {
+            "method": "GET",
+            "description": "Liste des lignes (recherche, état, pagination)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes?active=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes"
+              ],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /lignes/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’une ligne avec ses arrêts (dans l’ordre) et ses tarifs",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /lignes",
+          "request": {
+            "method": "POST",
+            "description": "Créer une ligne",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"BJM-GTG\",\n  \"nom\": \"Bujumbura - Gitega\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /lignes/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Modifier une ligne",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Bujumbura - Gitega (direct)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /lignes/{id}",
+          "request": {
+            "method": "DELETE",
+            "description": "Supprimer une ligne (409 si elle a des trajets)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /lignes/{id}/arrets",
+          "request": {
+            "method": "PUT",
+            "description": "Remplacer tous les arrêts (l’ordre du tableau = l’ordre sur la ligne)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"arrets\": [\n    {\n      \"station_id\": 1,\n      \"distance_km\": 0,\n      \"minutes_depuis_origine\": 0\n    },\n    {\n      \"station_id\": 2,\n      \"distance_km\": 30,\n      \"minutes_depuis_origine\": 45\n    },\n    {\n      \"station_id\": 3,\n      \"distance_km\": 100,\n      \"minutes_depuis_origine\": 120\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes/:id/arrets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes",
+                ":id",
+                "arrets"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /lignes/{id}/tarifs",
+          "request": {
+            "method": "PUT",
+            "description": "Remplacer tous les tarifs (chaque tronçon va vers l’avant sur la ligne)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tarifs\": [\n    {\n      \"station_depart_id\": 1,\n      \"station_arrivee_id\": 2,\n      \"prix\": 3000\n    },\n    {\n      \"station_depart_id\": 1,\n      \"station_arrivee_id\": 3,\n      \"prix\": 7500\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/lignes/:id/tarifs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lignes",
+                ":id",
+                "tarifs"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trajets",
+      "item": [
+        {
+          "name": "GET /trajets/recherche",
+          "request": {
+            "method": "GET",
+            "description": "Recherche publique de trajets (filtres, tri, pagination). Heures du Burundi (UTC+2)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/recherche?depart=1&arrivee=2&date=2026-11-20&tri=prix&limite=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                "recherche"
+              ],
+              "query": [
+                {
+                  "key": "depart",
+                  "value": "1"
+                },
+                {
+                  "key": "arrivee",
+                  "value": "2"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-11-20"
+                },
+                {
+                  "key": "tri",
+                  "value": "prix"
+                },
+                {
+                  "key": "limite",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /trajets",
+          "request": {
+            "method": "GET",
+            "description": "Liste des trajets pour le personnel",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets?statut=planifie&du=2026-11-01",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets"
+              ],
+              "query": [
+                {
+                  "key": "statut",
+                  "value": "planifie"
+                },
+                {
+                  "key": "du",
+                  "value": "2026-11-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /trajets/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’un trajet (ligne, arrêts, véhicule, places libres)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /trajets/{id}/places",
+          "request": {
+            "method": "GET",
+            "description": "Plan des places : chaque place est libre ou occupée",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/:id/places",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                ":id",
+                "places"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /trajets",
+          "request": {
+            "method": "POST",
+            "description": "Planifier un trajet (l’arrivée est calculée si absente)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ligne_id\": 1,\n  \"vehicule_id\": 1,\n  \"depart_prevu\": \"2026-12-01T05:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /trajets/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Modifier un trajet (annuler un trajet annule ses réservations)",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"annule\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /trajets/{id}",
+          "request": {
+            "method": "DELETE",
+            "description": "Supprimer un trajet (409 s’il a des réservations)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistiques",
+      "item": [
+        {
+          "name": "GET /trajets/{id}/remplissage",
+          "request": {
+            "method": "GET",
+            "description": "Taux de remplissage d’un trajet",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trajets/:id/remplissage",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trajets",
+                ":id",
+                "remplissage"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /statistiques/remplissage",
+          "request": {
+            "method": "GET",
+            "description": "Taux de remplissage par trajet, avec un résumé sur la période",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/statistiques/remplissage?du=2026-11-01&au=2026-11-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "statistiques",
+                "remplissage"
+              ],
+              "query": [
+                {
+                  "key": "du",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "au",
+                  "value": "2026-11-30"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Réservations",
+      "item": [
+        {
+          "name": "POST /reservations",
+          "request": {
+            "method": "POST",
+            "description": "Réserver une ou plusieurs places (tout ou rien). 409 PLACE_DEJA_PRISE si une place est prise",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trajet_id\": 1,\n  \"station_depart_id\": 1,\n  \"station_arrivee_id\": 2,\n  \"places\": [\n    {\n      \"numero_place\": 12,\n      \"passager\": {\n        \"nom_complet\": \"Aimé Niyonkuru\",\n        \"telephone\": \"+25779000000\"\n      }\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/reservations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reservations",
+          "request": {
+            "method": "GET",
+            "description": "Mes réservations (le personnel voit toutes les réservations)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reservations?statut_paiement=en_attente",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ],
+              "query": [
+                {
+                  "key": "statut_paiement",
+                  "value": "en_attente"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reservations/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’une réservation avec ses billets (404 si elle appartient à un autre)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reservations/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /reservations/{id}/annuler",
+          "request": {
+            "method": "POST",
+            "description": "Annuler (passager : au moins 2 h avant le départ). Libère les places",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reservations/:id/annuler",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                ":id",
+                "annuler"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /reservations/{id}/paiement",
+          "request": {
+            "method": "PATCH",
+            "description": "Marquer la réservation comme payée",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reservations/:id/paiement",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                ":id",
+                "paiement"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Passagers",
+      "item": [
+        {
+          "name": "GET /passagers",
+          "request": {
+            "method": "GET",
+            "description": "Clients du guichet (recherche par nom ou téléphone)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/passagers?q=aimé",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "passagers"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "aimé"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /passagers/{id}",
+          "request": {
+            "method": "GET",
+            "description": "Détail d’un passager",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/passagers/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "passagers",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /passagers",
+          "request": {
+            "method": "POST",
+            "description": "Créer un client du guichet",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom_complet\": \"Aimé Niyonkuru\",\n  \"telephone\": \"+25779000000\",\n  \"email\": \"aime@exemple.bi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/passagers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "passagers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /passagers/{id}",
+          "request": {
+            "method": "PATCH",
+            "description": "Modifier un passager",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telephone\": \"+25779111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/passagers/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "passagers",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /passagers/{id}",
+          "request": {
+            "method": "DELETE",
+            "description": "Supprimer un passager (409 s’il a des billets)",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/passagers/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "passagers",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Outils",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "description": "L’API répond",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
